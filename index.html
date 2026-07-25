@@ -17,15 +17,15 @@
     <div class="hub-ui">
       <header class="hub-top">
         <div class="hub-brand">
-          <p class="webgl-badge">Three.js · мини-экскурсия</p>
+          <p class="webgl-badge">Three.js · экскурсия</p>
           <h1>Сомнительный дом*</h1>
-          <p id="tour-copy">Пройдите по комнатам и нажмите на золотую плитку — откроется направление.</p>
+          <p id="tour-copy" class="tour-copy">Пройдите по дому и откройте направление.</p>
         </div>
-        <div class="hub-actions">
-          <button type="button" class="btn btn--ghost" id="tour-prev" aria-label="Предыдущая точка">←</button>
+        <div class="hub-actions" role="group" aria-label="Управление экскурсией">
+          <button type="button" class="btn btn--ghost btn--icon" id="tour-prev" aria-label="Назад">←</button>
           <button type="button" class="btn btn--ghost" id="tour-next">Далее</button>
           <button type="button" class="btn" id="tour-open">Открыть</button>
-          <a class="btn btn--ghost" href="#list">Список</a>
+          <button type="button" class="btn btn--ghost" id="list-toggle" aria-expanded="false" aria-controls="hub-fallback">Список</button>
         </div>
       </header>
 
@@ -33,31 +33,56 @@
 
       <div class="hub-bottom">
         <ol class="tour-steps" id="tour-steps" aria-label="Точки экскурсии"></ol>
-        <p class="hub-hint" id="hub-hint">Загрузка экскурсии…</p>
+        <p class="hub-hint" id="hub-hint">Загрузка…</p>
       </div>
     </div>
 
     <nav class="hub-fallback" id="hub-fallback" aria-label="Категории">
+      <div class="hub-fallback__head">
+        <strong>Категории</strong>
+        <button type="button" class="btn btn--ghost btn--icon" id="list-close" aria-label="Закрыть список">×</button>
+      </div>
       <div class="hub-fallback__list" id="list">
-        <a href="private.html">Стройка домов на частной территории</a>
-        <a href="summer.html">Стройка летних домиков</a>
-        <a href="landscaping.html">Отделка участка</a>
-        <a href="finish.html">Отделка домов под ключ</a>
-        <a href="apartments.html">Стройка многоквартирных домов</a>
+        <a href="private.html">
+          <img src="images/textures/icon-private.svg" alt="" width="40" height="40" />
+          <span>Стройка на частной территории</span>
+        </a>
+        <a href="summer.html">
+          <img src="images/textures/icon-summer.svg" alt="" width="40" height="40" />
+          <span>Летние домики</span>
+        </a>
+        <a href="landscaping.html">
+          <img src="images/textures/icon-land.svg" alt="" width="40" height="40" />
+          <span>Отделка участка</span>
+        </a>
+        <a href="finish.html">
+          <img src="images/textures/icon-finish.svg" alt="" width="40" height="40" />
+          <span>Отделка под ключ</span>
+        </a>
+        <a href="apartments.html">
+          <img src="images/textures/icon-apt.svg" alt="" width="40" height="40" />
+          <span>Многоквартирные дома</span>
+        </a>
       </div>
     </nav>
   </div>
 
   <script type="module" src="js/nav3d.js"></script>
   <script>
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      document.getElementById("hub-fallback")?.classList.add("is-visible");
-    }
-    document.querySelector('a[href="#list"]')?.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.getElementById("hub-fallback")?.classList.add("is-visible");
-      document.getElementById("list")?.scrollIntoView({ behavior: "smooth" });
+    const panel = document.getElementById("hub-fallback");
+    const toggle = document.getElementById("list-toggle");
+    const closeBtn = document.getElementById("list-close");
+
+    const setListOpen = (open) => {
+      if (!panel || !toggle) return;
+      panel.classList.toggle("is-visible", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+
+    toggle?.addEventListener("click", () => {
+      setListOpen(!panel.classList.contains("is-visible"));
     });
+    closeBtn?.addEventListener("click", () => setListOpen(false));
   </script>
 </body>
 </html>

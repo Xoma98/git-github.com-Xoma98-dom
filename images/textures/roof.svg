@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#5a6a72"/>
+  <defs>
+    <pattern id="tiles" width="64" height="36" patternUnits="userSpaceOnUse">
+      <path d="M0 18 L32 0 L64 18 L32 36 Z" fill="#6d7f88"/>
+      <path d="M0 18 L32 36 L64 18" fill="none" stroke="#3e4a50" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="url(#tiles)"/>
+  <rect width="512" height="512" fill="#d4a017" opacity=".12"/>
+</svg>

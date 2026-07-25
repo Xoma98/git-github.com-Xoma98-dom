@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#b89b6e"/>
+  <g stroke="#8d734f" stroke-width="4">
+    <line x1="0" y1="64" x2="512" y2="64"/>
+    <line x1="0" y1="128" x2="512" y2="128"/>
+    <line x1="0" y1="192" x2="512" y2="192"/>
+    <line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="0" y1="320" x2="512" y2="320"/>
+    <line x1="0" y1="384" x2="512" y2="384"/>
+    <line x1="0" y1="448" x2="512" y2="448"/>
+  </g>
+  <g fill="#d4b88a" opacity=".25">
+    <rect x="0" y="0" width="512" height="20"/>
+    <rect x="0" y="130" width="512" height="14"/>
+    <rect x="0" y="260" width="512" height="18"/>
+    <rect x="0" y="390" width="512" height="12"/>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#dfe6ea"/>
+  <defs>
+    <pattern id="cer" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="60" height="60" x="2" y="2" fill="#f4f7f8" stroke="#b7c2c8" stroke-width="3"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="url(#cer)"/>
+</svg>

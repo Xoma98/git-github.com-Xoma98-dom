@@ -4,23 +4,25 @@ const STOPS = [
   {
     id: "private",
     title: "Частная территория",
-    subtitle: "Участок и посадка дома",
+    subtitle: "Участок и фундамент",
     href: "private.html",
-    copy: "Здесь начинается дом: участок, фундамент и посадка на вашей территории.",
-    position: new THREE.Vector3(-2.2, 1.15, 2.4),
-    camera: new THREE.Vector3(0.2, 2.4, 6.2),
-    lookAt: new THREE.Vector3(-1.4, 1.0, 1.2),
+    copy: "Участок, фундамент и посадка дома на вашей территории.",
+    icon: "images/textures/icon-private.svg",
+    position: new THREE.Vector3(-2.35, 1.2, 2.55),
+    camera: { desktop: [0.4, 2.6, 6.4], mobile: [0.15, 3.6, 8.2] },
+    lookAt: [-1.3, 1.0, 1.1],
     color: 0xd4a017,
   },
   {
     id: "summer",
     title: "Летние домики",
-    subtitle: "Гостевой / дачный объём",
+    subtitle: "Дачный объём",
     href: "summer.html",
-    copy: "Лёгкий летний домик во дворе — для гостей, бани или сезонного отдыха.",
-    position: new THREE.Vector3(2.6, 1.05, 2.1),
-    camera: new THREE.Vector3(4.8, 2.2, 5.4),
-    lookAt: new THREE.Vector3(2.2, 1.0, 1.0),
+    copy: "Лёгкий гостевой домик во дворе — для отдыха и сезона.",
+    icon: "images/textures/icon-summer.svg",
+    position: new THREE.Vector3(3.0, 1.15, 2.35),
+    camera: { desktop: [5.0, 2.4, 5.6], mobile: [4.6, 3.4, 7.2] },
+    lookAt: [2.4, 1.0, 1.2],
     color: 0xc48a2a,
   },
   {
@@ -28,50 +30,47 @@ const STOPS = [
     title: "Отделка участка",
     subtitle: "Двор и озеленение",
     href: "landscaping.html",
-    copy: "Дорожки, газон и свет: двор должен работать каждый день, не только на фото.",
-    position: new THREE.Vector3(0.1, 0.55, 3.3),
-    camera: new THREE.Vector3(0.4, 2.8, 7.0),
-    lookAt: new THREE.Vector3(0.1, 0.4, 2.0),
+    copy: "Дорожки, газон и свет — двор, который работает каждый день.",
+    icon: "images/textures/icon-land.svg",
+    position: new THREE.Vector3(0.15, 0.58, 3.55),
+    camera: { desktop: [0.5, 3.0, 7.2], mobile: [0.2, 4.0, 8.8] },
+    lookAt: [0.1, 0.4, 2.2],
     color: 0x6f8f6a,
   },
   {
     id: "finish",
     title: "Отделка под ключ",
-    subtitle: "Интерьер гостиной",
+    subtitle: "Интерьер",
     href: "finish.html",
-    copy: "Чистовая отделка внутри: от стяжки и электрики до света и мебели.",
-    position: new THREE.Vector3(-0.3, 1.25, -0.2),
-    camera: new THREE.Vector3(0.0, 1.7, 2.8),
-    lookAt: new THREE.Vector3(-0.3, 1.2, -0.8),
+    copy: "Чистовая отделка: от стяжки и электрики до света и мебели.",
+    icon: "images/textures/icon-finish.svg",
+    position: new THREE.Vector3(-0.35, 1.3, -0.15),
+    camera: { desktop: [0.1, 1.75, 2.9], mobile: [0.05, 2.15, 3.9] },
+    lookAt: [-0.3, 1.2, -0.7],
     color: 0xe8dfc8,
   },
   {
     id: "apartments",
     title: "Многоквартирные",
-    subtitle: "Вид на ЖК",
+    subtitle: "Жилой комплекс",
     href: "apartments.html",
-    copy: "За окном — другой масштаб: секции, этажи и дворы многоквартирных домов.",
-    position: new THREE.Vector3(1.9, 1.55, -1.8),
-    camera: new THREE.Vector3(-0.5, 1.9, -0.2),
-    lookAt: new THREE.Vector3(2.2, 1.5, -2.2),
+    copy: "Другой масштаб: секции, этажи и дворы многоквартирных домов.",
+    icon: "images/textures/icon-apt.svg",
+    position: new THREE.Vector3(2.15, 1.65, -1.85),
+    camera: { desktop: [-0.4, 2.0, 0.1], mobile: [-1.0, 2.5, 1.0] },
+    lookAt: [2.3, 1.5, -2.1],
     color: 0x8aa4b8,
   },
 ];
 
 const canvas = document.getElementById("nav-canvas");
 const hint = document.getElementById("hub-hint");
-const fallback = document.getElementById("hub-fallback");
 const tourCopy = document.getElementById("tour-copy");
 const stepsEl = document.getElementById("tour-steps");
 const btnPrev = document.getElementById("tour-prev");
 const btnNext = document.getElementById("tour-next");
 const btnOpen = document.getElementById("tour-open");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function showFallback(message) {
-  setHint(message || "Выберите категорию ниже");
-  fallback?.classList.add("is-visible");
-}
 
 function isMobile() {
   return window.matchMedia("(max-width: 760px)").matches;
@@ -83,37 +82,68 @@ function setHint(text) {
 
 function defaultHint() {
   return isMobile()
-    ? "Крутите сцену · нажмите плитку или «Открыть»"
-    : "Крутите мышью · кликните плитку или «Открыть»";
+    ? "Свайп — обзор · «Открыть» — раздел"
+    : "Тяните мышью · клик по плитке или «Открыть»";
 }
 
-function makeLabelTexture(title, subtitle) {
+function camOf(stop) {
+  const arr = isMobile() ? stop.camera.mobile : stop.camera.desktop;
+  return new THREE.Vector3(...arr);
+}
+
+function lookOf(stop) {
+  return new THREE.Vector3(...stop.lookAt);
+}
+
+function loadTexture(url) {
+  return new Promise((resolve, reject) => {
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      url,
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.anisotropy = 4;
+        resolve(tex);
+      },
+      undefined,
+      reject
+    );
+  });
+}
+
+function makeLabelTexture(title, subtitle, iconImg) {
   const w = 1024;
-  const h = 512;
+  const h = 480;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
   const ctx = c.getContext("2d");
 
-  ctx.fillStyle = "rgba(14,19,16,0.92)";
-  roundRect(ctx, 16, 16, w - 32, h - 32, 24);
+  ctx.fillStyle = "rgba(14,19,16,0.94)";
+  roundRect(ctx, 12, 12, w - 24, h - 24, 28);
   ctx.fill();
   ctx.strokeStyle = "#d4a017";
-  ctx.lineWidth = 10;
-  roundRect(ctx, 16, 16, w - 32, h - 32, 24);
+  ctx.lineWidth = 8;
+  roundRect(ctx, 12, 12, w - 24, h - 24, 28);
   ctx.stroke();
 
+  if (iconImg) {
+    ctx.drawImage(iconImg, 48, 90, 160, 160);
+  }
+
   ctx.fillStyle = "#ebe3cf";
-  ctx.font = "700 58px Unbounded, Arial, sans-serif";
-  wrapText(ctx, title, 64, 170, w - 128, 66);
+  ctx.font = "700 52px Unbounded, Arial, sans-serif";
+  wrapText(ctx, title, iconImg ? 240 : 64, 160, w - (iconImg ? 300 : 120), 60);
 
   ctx.fillStyle = "#d4a017";
-  ctx.font = "500 36px Commissioner, Arial, sans-serif";
-  ctx.fillText(subtitle, 64, 320);
+  ctx.font = "500 34px Commissioner, Arial, sans-serif";
+  ctx.fillText(subtitle, iconImg ? 240 : 64, 280);
 
   ctx.fillStyle = "#b8ae97";
-  ctx.font = "500 32px Commissioner, Arial, sans-serif";
-  ctx.fillText("Нажмите, чтобы открыть →", 64, 400);
+  ctx.font = "500 30px Commissioner, Arial, sans-serif";
+  ctx.fillText("Нажмите, чтобы открыть →", iconImg ? 240 : 64, 360);
 
   const texture = new THREE.CanvasTexture(c);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -147,110 +177,132 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function buildHouse(scene) {
-  const matWall = new THREE.MeshStandardMaterial({ color: 0x3a4a40, roughness: 0.85, metalness: 0.05 });
-  const matFloor = new THREE.MeshStandardMaterial({ color: 0x2a322c, roughness: 0.9 });
-  const matAccent = new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.45, metalness: 0.2 });
-  const matGlass = new THREE.MeshStandardMaterial({
-    color: 0x8ec8ff,
-    transparent: true,
-    opacity: 0.22,
-    roughness: 0.1,
-    metalness: 0.4,
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
   });
-  const matWood = new THREE.MeshStandardMaterial({ color: 0x6b4a36, roughness: 0.8 });
+}
 
-  const floor = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.18, 7.2), matFloor);
-  floor.position.set(0, 0, 0.2);
-  scene.add(floor);
+async function buildHouse(scene, textures) {
+  const mat = (map, color, repeat = [2, 2]) => {
+    let tex = null;
+    if (map && map.isTexture) {
+      tex = map.clone();
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(repeat[0], repeat[1]);
+      tex.needsUpdate = true;
+    }
+    return new THREE.MeshStandardMaterial({
+      map: tex,
+      color: tex ? 0xffffff : color,
+      roughness: 0.82,
+      metalness: 0.04,
+    });
+  };
 
-  const yard = new THREE.Mesh(
-    new THREE.CircleGeometry(7.5, 48),
-    new THREE.MeshStandardMaterial({ color: 0x2f5a38, roughness: 1 })
-  );
-  yard.rotation.x = -Math.PI / 2;
-  yard.position.y = -0.08;
-  scene.add(yard);
+  const wall = mat(textures.brick, 0x8b5a3c, [2.5, 1.4]);
+  const plaster = mat(textures.plaster, 0xc7bead, [1.5, 1.5]);
+  const wood = mat(textures.wood, 0x6e452c, [1.2, 1.2]);
+  const floor = mat(textures.floor, 0xb89b6e, [3, 3]);
+  const roof = mat(textures.roof, 0x5a6a72, [3, 2]);
+  const grass = mat(textures.grass, 0x3f6b45, [4, 4]);
+  const wallpaper = mat(textures.wallpaper, 0xe8dfc8, [2, 2]);
+  const ceramic = mat(textures.ceramic, 0xdfe6ea, [2, 2]);
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: 0xb8dcff,
+    transmission: 0.65,
+    transparent: true,
+    opacity: 0.55,
+    roughness: 0.08,
+    metalness: 0.05,
+    thickness: 0.2,
+  });
 
-  const back = new THREE.Mesh(new THREE.BoxGeometry(8.4, 2.8, 0.18), matWall);
-  back.position.set(0, 1.4, -3.2);
-  scene.add(back);
+  const add = (geo, material, pos, rot) => {
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.position.set(...pos);
+    if (rot) mesh.rotation.set(...rot);
+    scene.add(mesh);
+    return mesh;
+  };
 
-  const left = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.8, 6.4), matWall);
-  left.position.set(-4.1, 1.4, 0);
-  scene.add(left);
+  // Ground & yard
+  add(new THREE.CircleGeometry(8.5, 64), grass, [0, -0.05, 0.4], [-Math.PI / 2, 0, 0]);
+  add(new THREE.BoxGeometry(8.6, 0.16, 7.4), floor, [0, 0.02, 0.15]);
 
-  const right = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.8, 6.4), matWall);
-  right.position.set(4.1, 1.4, 0);
-  scene.add(right);
+  // House shell — cutaway feel (no front wall center)
+  add(new THREE.BoxGeometry(8.6, 2.9, 0.2), wall, [0, 1.5, -3.35]);
+  add(new THREE.BoxGeometry(0.2, 2.9, 6.7), wall, [-4.2, 1.5, 0]);
+  add(new THREE.BoxGeometry(0.2, 2.9, 6.7), plaster, [4.2, 1.5, 0]);
+  add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [-2.85, 1.5, 3.35]);
+  add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [2.85, 1.5, 3.35]);
 
-  const frontLeft = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 0.18), matWall);
-  frontLeft.position.set(-2.8, 1.4, 3.3);
-  scene.add(frontLeft);
+  // Interior partition with wallpaper
+  add(new THREE.BoxGeometry(0.12, 2.5, 3.2), wallpaper, [-1.5, 1.3, -0.6]);
 
-  const frontRight = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 0.18), matWall);
-  frontRight.position.set(2.8, 1.4, 3.3);
-  scene.add(frontRight);
+  // Roof
+  const roofMesh = add(new THREE.ConeGeometry(6.4, 1.7, 4), roof, [0, 3.55, 0]);
+  roofMesh.rotation.y = Math.PI / 4;
 
-  const door = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.1, 0.12), matWood);
-  door.position.set(0, 1.05, 3.28);
-  scene.add(door);
+  // Door & windows
+  add(new THREE.BoxGeometry(1.15, 2.15, 0.1), wood, [0, 1.12, 3.34]);
+  add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [-2.55, 1.55, 3.46]);
+  add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [2.55, 1.55, 3.46]);
+  // frames
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xe8dfc8, roughness: 0.6 });
+  add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [-2.55, 2.15, 3.48]);
+  add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [2.55, 2.15, 3.48]);
 
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(6.2, 1.8, 4), matAccent);
-  roof.position.set(0, 3.5, 0);
-  roof.rotation.y = Math.PI / 4;
-  scene.add(roof);
+  // Living furniture
+  add(new THREE.BoxGeometry(2.3, 0.5, 0.9), wood, [-1.1, 0.42, -0.85]);
+  add(new THREE.BoxGeometry(2.3, 0.35, 0.2), wood, [-1.1, 0.85, -1.2]);
+  add(new THREE.CylinderGeometry(0.5, 0.55, 0.4, 24), wood, [0.1, 0.35, 0.45]);
+  add(new THREE.CylinderGeometry(0.52, 0.52, 0.05, 24), ceramic, [0.1, 0.58, 0.45]);
 
-  const windowL = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.1), matGlass);
-  windowL.position.set(-2.6, 1.5, 3.4);
-  scene.add(windowL);
+  // Renovation props: paint can, ladder, tools
+  add(new THREE.CylinderGeometry(0.22, 0.25, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.4 }), [-2.6, 0.35, 1.4]);
+  add(new THREE.BoxGeometry(0.08, 1.8, 0.45), wood, [1.3, 0.95, 1.8], [0, 0.4, -0.15]);
+  add(new THREE.BoxGeometry(0.7, 0.12, 0.35), new THREE.MeshStandardMaterial({ color: 0x4a5560 }), [-2.1, 0.2, 2.0]);
 
-  const windowR = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.1), matGlass);
-  windowR.position.set(2.6, 1.5, 3.4);
-  scene.add(windowR);
-
-  const sofa = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.55, 0.85), matWood);
-  sofa.position.set(-1.2, 0.45, -0.8);
-  scene.add(sofa);
-
-  const table = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.45, 24), matAccent);
-  table.position.set(-0.2, 0.35, 0.4);
-  scene.add(table);
-
-  const summerCabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.4, 1.4), matWood);
-  summerCabin.position.set(3.3, 0.75, 2.4);
-  scene.add(summerCabin);
-
-  const cabinRoof = new THREE.Mesh(new THREE.ConeGeometry(1.4, 0.7, 4), matAccent);
+  // Summer cabin
+  add(new THREE.BoxGeometry(1.9, 1.45, 1.5), wood, [3.35, 0.8, 2.45]);
+  const cabinRoof = add(new THREE.ConeGeometry(1.45, 0.65, 4), roof, [3.35, 1.8, 2.45]);
   cabinRoof.rotation.y = Math.PI / 4;
-  cabinRoof.position.set(3.3, 1.75, 2.4);
-  scene.add(cabinRoof);
+  add(new THREE.BoxGeometry(0.35, 0.7, 0.06), glass, [3.35, 0.95, 3.22]);
 
-  const path = new THREE.Mesh(
-    new THREE.BoxGeometry(1.1, 0.05, 3.2),
-    new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 1 })
-  );
-  path.position.set(0.1, 0.02, 4.4);
-  scene.add(path);
+  // Path & planters
+  add(new THREE.BoxGeometry(1.15, 0.06, 3.4), ceramic, [0.1, 0.05, 4.55]);
+  add(new THREE.CylinderGeometry(0.35, 0.4, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8b5a3c }), [-1.4, 0.25, 4.2]);
+  add(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0x3f6b45 }), [-1.4, 0.55, 4.2]);
+  add(new THREE.CylinderGeometry(0.35, 0.4, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8b5a3c }), [1.5, 0.25, 4.3]);
+  add(new THREE.SphereGeometry(0.28, 12, 12), new THREE.MeshStandardMaterial({ color: 0x4f8158 }), [1.5, 0.52, 4.3]);
 
-  const tower = new THREE.Mesh(
-    new THREE.BoxGeometry(1.3, 3.4, 1.3),
-    new THREE.MeshStandardMaterial({ color: 0x4a5560, roughness: 0.75 })
-  );
-  tower.position.set(2.4, 1.7, -2.5);
-  scene.add(tower);
-
-  for (let i = 0; i < 6; i++) {
-    const win = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.28), matGlass);
-    win.position.set(1.74, 0.7 + i * 0.45, -2.5);
-    win.rotation.y = Math.PI / 2;
-    scene.add(win);
+  // Apartment tower
+  add(new THREE.BoxGeometry(1.45, 3.6, 1.45), plaster, [2.45, 1.85, -2.45]);
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 2; col++) {
+      add(
+        new THREE.PlaneGeometry(0.32, 0.32),
+        glass,
+        [1.71, 0.55 + row * 0.55, -2.2 + col * 0.5],
+        [0, Math.PI / 2, 0]
+      );
+    }
   }
+
+  // Soft accent light inside
+  const lamp = new THREE.PointLight(0xffe2a8, 1.1, 8, 2);
+  lamp.position.set(-0.5, 2.4, 0.2);
+  scene.add(lamp);
 }
 
 async function init() {
   if (!canvas || !window.WebGLRenderingContext) {
-    showFallback("WebGL недоступен — откройте категорию списком");
+    setHint("WebGL недоступен — откройте «Список»");
     return;
   }
 
@@ -258,110 +310,136 @@ async function init() {
   try {
     renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: !isMobile(),
+      antialias: true,
       alpha: true,
       powerPreference: "high-performance",
     });
   } catch {
-    showFallback("Не удалось запустить 3D-экскурсию");
+    setHint("Не удалось запустить 3D");
     return;
   }
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-  camera.position.copy(STOPS[0].camera);
+  const fogColor = new THREE.Color(0x101612);
+  scene.fog = new THREE.Fog(fogColor, 10, 22);
+
+  const camera = new THREE.PerspectiveCamera(isMobile() ? 55 : 48, 1, 0.1, 100);
+  camera.position.copy(camOf(STOPS[0]));
 
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const key = new THREE.DirectionalLight(0xffe2a8, 1.2);
-  key.position.set(4, 8, 5);
-  const fill = new THREE.DirectionalLight(0x6f8f6a, 0.45);
-  fill.position.set(-5, 3, -2);
-  scene.add(key, fill);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xffe2a8, 1.35);
+  sun.position.set(5, 9, 4);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x8fb59a, 0.4);
+  fill.position.set(-6, 3, -3);
+  scene.add(fill);
+  const hemi = new THREE.HemisphereLight(0xddeeff, 0x3a4a30, 0.35);
+  scene.add(hemi);
 
-  buildHouse(scene);
+  const textures = {};
+  try {
+    const [brick, plaster, wood, floor, roof, grass, wallpaper, ceramic] = await Promise.all([
+      loadTexture("images/textures/brick.svg"),
+      loadTexture("images/textures/plaster.svg"),
+      loadTexture("images/textures/wood.svg"),
+      loadTexture("images/textures/floor.svg"),
+      loadTexture("images/textures/roof.svg"),
+      loadTexture("images/textures/grass.svg"),
+      loadTexture("images/textures/wallpaper.svg"),
+      loadTexture("images/textures/tile-ceramic.svg"),
+    ]);
+    Object.assign(textures, { brick, plaster, wood, floor, roof, grass, wallpaper, ceramic });
+  } catch {
+    // Materials fall back to solid colors inside buildHouse
+  }
+
+  await buildHouse(scene, textures);
 
   const pickables = [];
   const tiles = [];
   const labels = [];
+  const iconImgs = await Promise.all(
+    STOPS.map((s) => loadImage(s.icon).catch(() => null))
+  );
 
   STOPS.forEach((stop, index) => {
-    const tile = new THREE.Mesh(
-      new THREE.BoxGeometry(1.05, 1.05, 0.14),
-      new THREE.MeshStandardMaterial({
-        color: stop.color,
-        emissive: stop.color,
-        emissiveIntensity: 0.35,
-        roughness: 0.35,
-        metalness: 0.25,
-        side: THREE.DoubleSide,
-      })
-    );
+    const tileMat = new THREE.MeshStandardMaterial({
+      color: stop.color,
+      emissive: stop.color,
+      emissiveIntensity: 0.4,
+      roughness: 0.3,
+      metalness: 0.25,
+      side: THREE.DoubleSide,
+    });
+    const tile = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.95, 0.12), tileMat);
     tile.position.copy(stop.position);
     tile.userData = { href: stop.href, title: stop.title, index, kind: "tile" };
     scene.add(tile);
     tiles.push(tile);
 
-    // Large invisible hit box — reliable clicks
+    // Icon plane on tile front
+    if (iconImgs[index]) {
+      const iconTex = new THREE.CanvasTexture(iconImgs[index]);
+      iconTex.colorSpace = THREE.SRGBColorSpace;
+      const icon = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.72, 0.72),
+        new THREE.MeshBasicMaterial({ map: iconTex, transparent: true })
+      );
+      icon.position.set(0, 0, 0.08);
+      tile.add(icon);
+    }
+
     const hit = new THREE.Mesh(
-      new THREE.SphereGeometry(0.95, 16, 16),
-      new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-      })
+      new THREE.SphereGeometry(1.05, 16, 16),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
     );
     hit.position.copy(stop.position);
     hit.userData = { href: stop.href, title: stop.title, index, kind: "hit" };
     scene.add(hit);
-    pickables.push(hit);
+    pickables.push(hit, tile);
 
     const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.7, 0.9, 32),
-      new THREE.MeshBasicMaterial({
-        color: 0xd4a017,
-        transparent: true,
-        opacity: 0.55,
-        side: THREE.DoubleSide,
-      })
+      new THREE.RingGeometry(0.72, 0.92, 40),
+      new THREE.MeshBasicMaterial({ color: 0xd4a017, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
     );
     ring.rotation.x = -Math.PI / 2;
-    ring.position.set(stop.position.x, 0.06, stop.position.z);
+    ring.position.set(stop.position.x, 0.08, stop.position.z);
     scene.add(ring);
 
     const label = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.2, 1.1),
+      new THREE.PlaneGeometry(isMobile() ? 2.0 : 2.35, isMobile() ? 0.95 : 1.1),
       new THREE.MeshBasicMaterial({
-        map: makeLabelTexture(stop.title, stop.subtitle),
+        map: makeLabelTexture(stop.title, stop.subtitle, iconImgs[index]),
         transparent: true,
         side: THREE.DoubleSide,
         depthWrite: false,
       })
     );
-    label.position.set(stop.position.x, stop.position.y + 1.05, stop.position.z);
+    label.position.set(stop.position.x, stop.position.y + 1.1, stop.position.z);
     label.userData = { href: stop.href, title: stop.title, index, kind: "label" };
     scene.add(label);
     labels.push(label);
     pickables.push(label);
-    pickables.push(tile);
   });
 
   if (stepsEl) {
     stepsEl.innerHTML = STOPS.map(
       (s, i) =>
-        `<li><button type="button" class="tour-step" data-index="${i}" aria-label="${s.title}">${i + 1}</button></li>`
+        `<li><button type="button" class="tour-step" data-index="${i}" aria-label="${s.title}"><img src="${s.icon}" alt="" width="18" height="18" /><span>${i + 1}</span></button></li>`
     ).join("");
   }
 
   let activeIndex = 0;
-  const camFrom = new THREE.Vector3().copy(STOPS[0].camera);
-  const camTo = new THREE.Vector3().copy(STOPS[0].camera);
-  const lookFrom = new THREE.Vector3().copy(STOPS[0].lookAt);
-  const lookTo = new THREE.Vector3().copy(STOPS[0].lookAt);
-  const lookNow = new THREE.Vector3().copy(STOPS[0].lookAt);
+  const camFrom = camOf(STOPS[0]);
+  const camTo = camOf(STOPS[0]);
+  const lookFrom = lookOf(STOPS[0]);
+  const lookTo = lookOf(STOPS[0]);
+  const lookNow = lookOf(STOPS[0]);
   let camT = 1;
   let orbitYaw = 0;
 
@@ -376,13 +454,12 @@ async function init() {
     orbitYaw = 0;
     camFrom.copy(camera.position);
     lookFrom.copy(lookNow);
-    camTo.copy(stop.camera);
-    lookTo.copy(stop.lookAt);
+    camTo.copy(camOf(stop));
+    lookTo.copy(lookOf(stop));
     camT = instant || reducedMotion ? 1 : 0;
 
     if (tourCopy) tourCopy.textContent = stop.copy;
     setHint(`Точка ${activeIndex + 1}: ${stop.title}`);
-    if (btnOpen) btnOpen.textContent = "Открыть";
 
     stepsEl?.querySelectorAll(".tour-step").forEach((btn, i) => {
       btn.classList.toggle("is-active", i === activeIndex);
@@ -390,8 +467,8 @@ async function init() {
 
     tiles.forEach((mesh) => {
       const on = mesh.userData.index === activeIndex;
-      mesh.material.emissiveIntensity = on ? 0.9 : 0.28;
-      mesh.scale.setScalar(on ? 1.15 : 1);
+      mesh.material.emissiveIntensity = on ? 0.95 : 0.3;
+      mesh.scale.setScalar(on ? 1.18 : 1);
     });
   }
 
@@ -414,38 +491,34 @@ async function init() {
     if (!btn) return;
     e.stopPropagation();
     const index = Number(btn.dataset.index);
-    if (index === activeIndex) {
-      openStop(index);
-      return;
-    }
-    goTo(index);
+    if (index === activeIndex) openStop(index);
+    else goTo(index);
   });
 
   const raycaster = new THREE.Raycaster();
-  raycaster.params.Mesh = { threshold: 0.2 };
   const pointer = new THREE.Vector2();
-
-  const drag = {
-    active: false,
-    moved: false,
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    pointerId: null,
-  };
+  const drag = { active: false, moved: false, startX: 0, startY: 0, lastX: 0, pointerId: null };
 
   function resize() {
     const w = canvas.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, isMobile() ? 1.75 : 2);
-    renderer.setPixelRatio(dpr);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile() ? 1.75 : 2));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(h, 1);
+    camera.fov = isMobile() ? 55 : 48;
     camera.updateProjectionMatrix();
   }
 
   resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => {
+    resize();
+    // Refresh camera target distance for orientation change
+    if (!drag.active) {
+      camTo.copy(camOf(STOPS[activeIndex]));
+      camFrom.copy(camera.position);
+      camT = 0;
+    }
+  });
 
   function setPointer(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
@@ -455,18 +528,17 @@ async function init() {
 
   function pick() {
     raycaster.setFromCamera(pointer, camera);
-    const hits = raycaster.intersectObjects(pickables, false);
-    return hits[0]?.object || null;
+    return raycaster.intersectObjects(pickables, false)[0]?.object || null;
   }
 
   function applyOrbit(dx) {
     orbitYaw += dx * 0.005;
     const stop = STOPS[activeIndex];
-    const base = stop.camera.clone().sub(stop.lookAt);
+    const base = camOf(stop).sub(lookOf(stop));
     const spherical = new THREE.Spherical().setFromVector3(base);
     spherical.theta += orbitYaw;
     spherical.phi = THREE.MathUtils.clamp(spherical.phi, 0.4, 1.4);
-    camera.position.copy(stop.lookAt).add(new THREE.Vector3().setFromSpherical(spherical));
+    camera.position.copy(lookOf(stop)).add(new THREE.Vector3().setFromSpherical(spherical));
     camTo.copy(camera.position);
     camFrom.copy(camera.position);
     camT = 1;
@@ -486,20 +558,16 @@ async function init() {
 
   canvas.addEventListener("pointermove", (event) => {
     setPointer(event.clientX, event.clientY);
-
     if (drag.active) {
-      const dist = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
-      if (dist > 10) drag.moved = true;
+      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 10) drag.moved = true;
       const dx = event.clientX - drag.lastX;
       drag.lastX = event.clientX;
       if (drag.moved) applyOrbit(dx);
       return;
     }
-
     const hit = pick();
     canvas.style.cursor = hit ? "pointer" : "grab";
-    if (hit) setHint(`Открыть: ${hit.userData.title}`);
-    else setHint(defaultHint());
+    setHint(hit ? `Открыть: ${hit.userData.title}` : defaultHint());
   });
 
   function endDrag(event) {
@@ -511,26 +579,18 @@ async function init() {
     } catch {
       /* ignore */
     }
-
     if (wasDrag) {
       setHint(defaultHint());
       return;
     }
-
     setPointer(event.clientX, event.clientY);
     const hit = pick();
-    if (hit?.userData?.href) {
-      window.location.assign(hit.userData.href);
-      return;
-    }
-
-    // Tap empty space on active stop still allows open via nearby threshold
-    setHint(defaultHint());
+    if (hit?.userData?.href) window.location.assign(hit.userData.href);
+    else setHint(defaultHint());
   }
 
   canvas.addEventListener("pointerup", endDrag);
   canvas.addEventListener("pointercancel", endDrag);
-
   canvas.addEventListener("click", (event) => {
     if (drag.moved) return;
     setPointer(event.clientX, event.clientY);
@@ -539,53 +599,44 @@ async function init() {
   });
 
   setHint(defaultHint());
-  if (stepsEl) {
-    stepsEl.title = "Клик — к точке, повторный клик по активной — открыть раздел";
-  }
 
   let frame = 0;
   function animate() {
     frame = requestAnimationFrame(animate);
-
     if (camT < 1) {
       camT = Math.min(1, camT + (reducedMotion ? 1 : 0.05));
       const k = 1 - Math.pow(1 - camT, 3);
       camera.position.lerpVectors(camFrom, camTo, k);
       lookNow.lerpVectors(lookFrom, lookTo, k);
     }
-
     camera.lookAt(lookNow);
 
     const t = performance.now() * 0.002;
     tiles.forEach((mesh) => {
-      const baseY = STOPS[mesh.userData.index].position.y;
-      mesh.position.y = baseY + Math.sin(t + mesh.userData.index) * 0.05;
-      mesh.rotation.y += 0.012;
+      const base = STOPS[mesh.userData.index].position;
+      mesh.position.y = base.y + Math.sin(t + mesh.userData.index) * 0.05;
+      mesh.rotation.y += 0.01;
     });
-
     labels.forEach((label) => {
       const on = label.userData.index === activeIndex;
       label.visible = on;
       label.quaternion.copy(camera.quaternion);
+      const tile = tiles[label.userData.index];
       const base = STOPS[label.userData.index].position;
-      label.position.set(base.x, tiles[label.userData.index].position.y + 1.05, base.z);
+      label.position.set(base.x, tile.position.y + 1.1, base.z);
     });
-
-    // Keep hit spheres synced with bobbing tiles
     pickables.forEach((obj) => {
-      if (obj.userData.kind !== "hit") return;
-      obj.position.copy(tiles[obj.userData.index].position);
+      if (obj.userData.kind === "hit") obj.position.copy(tiles[obj.userData.index].position);
     });
 
     renderer.render(scene, camera);
   }
 
   animate();
-
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) cancelAnimationFrame(frame);
     else animate();
   });
 }
 
-init().catch(() => showFallback("3D-экскурсия недоступна"));
+init().catch(() => setHint("3D-экскурсия недоступна — откройте «Список»"));

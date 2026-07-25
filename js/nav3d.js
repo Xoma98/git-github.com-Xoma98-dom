@@ -4,65 +4,76 @@ const STOPS = [
   {
     id: "private",
     title: "Частная территория",
-    subtitle: "Участок и фундамент",
+    subtitle: "Вид на участок",
     href: "private.html",
-    copy: "Участок, фундамент и посадка дома на вашей территории.",
+    copy: "Вы внутри: из окна виден участок — фундамент и посадка дома начинаются отсюда.",
     icon: "images/textures/icon-private.svg",
-    position: new THREE.Vector3(-2.35, 1.2, 2.55),
-    camera: { desktop: [0.4, 2.6, 6.4], mobile: [0.15, 3.6, 8.2] },
-    lookAt: [-1.3, 1.0, 1.1],
+    position: new THREE.Vector3(-2.6, 1.45, 1.6),
+    camera: { desktop: [0.2, 1.58, 2.15], mobile: [0.15, 1.58, 2.35] },
+    lookAt: [-2.8, 1.35, 2.4],
     color: 0xd4a017,
   },
   {
     id: "summer",
     title: "Летние домики",
-    subtitle: "Дачный объём",
+    subtitle: "Окно во двор",
     href: "summer.html",
-    copy: "Лёгкий гостевой домик во дворе — для отдыха и сезона.",
+    copy: "Справа во дворе — лёгкий гостевой домик для сезона и отдыха.",
     icon: "images/textures/icon-summer.svg",
-    position: new THREE.Vector3(3.0, 1.15, 2.35),
-    camera: { desktop: [5.0, 2.4, 5.6], mobile: [4.6, 3.4, 7.2] },
-    lookAt: [2.4, 1.0, 1.2],
+    position: new THREE.Vector3(2.55, 1.45, 1.5),
+    camera: { desktop: [0.35, 1.58, 1.9], mobile: [0.2, 1.58, 2.1] },
+    lookAt: [3.2, 1.2, 2.35],
     color: 0xc48a2a,
   },
   {
     id: "landscaping",
     title: "Отделка участка",
-    subtitle: "Двор и озеленение",
+    subtitle: "Взгляд к двери",
     href: "landscaping.html",
-    copy: "Дорожки, газон и свет — двор, который работает каждый день.",
+    copy: "Обернитесь к входу: дорожка, газон и двор — отделка участка с порога.",
     icon: "images/textures/icon-land.svg",
-    position: new THREE.Vector3(0.15, 0.58, 3.55),
-    camera: { desktop: [0.5, 3.0, 7.2], mobile: [0.2, 4.0, 8.8] },
-    lookAt: [0.1, 0.4, 2.2],
+    position: new THREE.Vector3(0.15, 1.15, 2.85),
+    camera: { desktop: [0.1, 1.58, 1.35], mobile: [0.05, 1.58, 1.55] },
+    lookAt: [0.1, 1.0, 4.4],
     color: 0x6f8f6a,
   },
   {
     id: "finish",
     title: "Отделка под ключ",
-    subtitle: "Интерьер",
+    subtitle: "Гостиная",
     href: "finish.html",
-    copy: "Чистовая отделка: от стяжки и электрики до света и мебели.",
+    copy: "Гостиная после чистовой: стены, пол, свет и мебель — дом готов к жизни.",
     icon: "images/textures/icon-finish.svg",
-    position: new THREE.Vector3(-0.35, 1.3, -0.15),
-    camera: { desktop: [0.1, 1.75, 2.9], mobile: [0.05, 2.15, 3.9] },
-    lookAt: [-0.3, 1.2, -0.7],
+    position: new THREE.Vector3(-1.35, 1.45, -0.55),
+    camera: { desktop: [1.1, 1.58, 0.9], mobile: [0.95, 1.58, 1.05] },
+    lookAt: [-1.4, 1.25, -0.9],
     color: 0xe8dfc8,
   },
   {
     id: "apartments",
     title: "Многоквартирные",
-    subtitle: "Жилой комплекс",
+    subtitle: "Вид из окна",
     href: "apartments.html",
-    copy: "Другой масштаб: секции, этажи и дворы многоквартирных домов.",
+    copy: "В глубине — другой масштаб: секции и этажи многоквартирного дома.",
     icon: "images/textures/icon-apt.svg",
-    position: new THREE.Vector3(2.15, 1.65, -1.85),
-    camera: { desktop: [-0.4, 2.0, 0.1], mobile: [-1.0, 2.5, 1.0] },
-    lookAt: [2.3, 1.5, -2.1],
+    position: new THREE.Vector3(1.8, 1.55, -1.55),
+    camera: { desktop: [-0.4, 1.62, -0.2], mobile: [-0.55, 1.62, 0.05] },
+    lookAt: [2.35, 1.7, -2.35],
     color: 0x8aa4b8,
   },
 ];
 
+/** Точки анимации входа: снаружи → через дверь → внутрь */
+const ENTER = {
+  outside: {
+    cam: [0, 1.55, 5.6],
+    look: [0, 1.35, 3.35],
+  },
+  doorway: {
+    cam: [0, 1.55, 3.55],
+    look: [0, 1.4, 1.2],
+  },
+};
 const canvas = document.getElementById("nav-canvas");
 const hint = document.getElementById("hub-hint");
 const tourCopy = document.getElementById("tour-copy");
@@ -82,8 +93,8 @@ function setHint(text) {
 
 function defaultHint() {
   return isMobile()
-    ? "Свайп — обзор · «Открыть» — раздел"
-    : "Тяните мышью · клик по плитке или «Открыть»";
+    ? "Осматривайтесь свайпом · «Открыть» — раздел"
+    : "Осматривайтесь мышью · клик по плитке или «Открыть»";
 }
 
 function camOf(stop) {
@@ -234,25 +245,30 @@ async function buildHouse(scene, textures) {
   add(new THREE.CircleGeometry(8.5, 64), grass, [0, -0.05, 0.4], [-Math.PI / 2, 0, 0]);
   add(new THREE.BoxGeometry(8.6, 0.16, 7.4), floor, [0, 0.02, 0.15]);
 
-  // House shell — cutaway feel (no front wall center)
+  // House shell — вход открыт, внутри потолок
   add(new THREE.BoxGeometry(8.6, 2.9, 0.2), wall, [0, 1.5, -3.35]);
   add(new THREE.BoxGeometry(0.2, 2.9, 6.7), wall, [-4.2, 1.5, 0]);
   add(new THREE.BoxGeometry(0.2, 2.9, 6.7), plaster, [4.2, 1.5, 0]);
   add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [-2.85, 1.5, 3.35]);
   add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [2.85, 1.5, 3.35]);
 
+  // Ceiling — ощущение, что мы внутри
+  add(new THREE.BoxGeometry(8.4, 0.12, 6.5), plaster, [0, 2.88, 0.05]);
+
   // Interior partition with wallpaper
   add(new THREE.BoxGeometry(0.12, 2.5, 3.2), wallpaper, [-1.5, 1.3, -0.6]);
 
-  // Roof
+  // Roof (снаружи)
   const roofMesh = add(new THREE.ConeGeometry(6.4, 1.7, 4), roof, [0, 3.55, 0]);
   roofMesh.rotation.y = Math.PI / 4;
 
-  // Door & windows
-  add(new THREE.BoxGeometry(1.15, 2.15, 0.1), wood, [0, 1.12, 3.34]);
+  // Open door — приглашает войти
+  const door = add(new THREE.BoxGeometry(1.15, 2.15, 0.1), wood, [0.55, 1.12, 3.2]);
+  door.rotation.y = -1.05;
+
+  // Windows
   add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [-2.55, 1.55, 3.46]);
   add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [2.55, 1.55, 3.46]);
-  // frames
   const frameMat = new THREE.MeshStandardMaterial({ color: 0xe8dfc8, roughness: 0.6 });
   add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [-2.55, 2.15, 3.48]);
   add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [2.55, 2.15, 3.48]);
@@ -263,12 +279,15 @@ async function buildHouse(scene, textures) {
   add(new THREE.CylinderGeometry(0.5, 0.55, 0.4, 24), wood, [0.1, 0.35, 0.45]);
   add(new THREE.CylinderGeometry(0.52, 0.52, 0.05, 24), ceramic, [0.1, 0.58, 0.45]);
 
-  // Renovation props: paint can, ladder, tools
+  // Renovation props
   add(new THREE.CylinderGeometry(0.22, 0.25, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.4 }), [-2.6, 0.35, 1.4]);
   add(new THREE.BoxGeometry(0.08, 1.8, 0.45), wood, [1.3, 0.95, 1.8], [0, 0.4, -0.15]);
   add(new THREE.BoxGeometry(0.7, 0.12, 0.35), new THREE.MeshStandardMaterial({ color: 0x4a5560 }), [-2.1, 0.2, 2.0]);
 
-  // Summer cabin
+  // Picture / wall accent inside
+  add(new THREE.BoxGeometry(0.9, 0.65, 0.04), new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.5 }), [-4.05, 1.55, 0.2], [0, Math.PI / 2, 0]);
+
+  // Summer cabin outside (видно из окна)
   add(new THREE.BoxGeometry(1.9, 1.45, 1.5), wood, [3.35, 0.8, 2.45]);
   const cabinRoof = add(new THREE.ConeGeometry(1.45, 0.65, 4), roof, [3.35, 1.8, 2.45]);
   cabinRoof.rotation.y = Math.PI / 4;
@@ -281,7 +300,7 @@ async function buildHouse(scene, textures) {
   add(new THREE.CylinderGeometry(0.35, 0.4, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8b5a3c }), [1.5, 0.25, 4.3]);
   add(new THREE.SphereGeometry(0.28, 12, 12), new THREE.MeshStandardMaterial({ color: 0x4f8158 }), [1.5, 0.52, 4.3]);
 
-  // Apartment tower
+  // Apartment tower (видно из глубины)
   add(new THREE.BoxGeometry(1.45, 3.6, 1.45), plaster, [2.45, 1.85, -2.45]);
   for (let row = 0; row < 5; row++) {
     for (let col = 0; col < 2; col++) {
@@ -294,10 +313,16 @@ async function buildHouse(scene, textures) {
     }
   }
 
-  // Soft accent light inside
-  const lamp = new THREE.PointLight(0xffe2a8, 1.1, 8, 2);
-  lamp.position.set(-0.5, 2.4, 0.2);
+  // Interior lighting
+  const lamp = new THREE.PointLight(0xffe2a8, 1.35, 9, 2);
+  lamp.position.set(-0.4, 2.35, 0.3);
   scene.add(lamp);
+  const entryLight = new THREE.PointLight(0xfff2d0, 0.85, 6, 2);
+  entryLight.position.set(0, 2.2, 2.4);
+  scene.add(entryLight);
+  const windowLight = new THREE.PointLight(0xcfe8ff, 0.55, 5, 2);
+  windowLight.position.set(-2.4, 1.7, 2.8);
+  scene.add(windowLight);
 }
 
 async function init() {
@@ -320,11 +345,14 @@ async function init() {
   }
 
   const scene = new THREE.Scene();
-  const fogColor = new THREE.Color(0x101612);
-  scene.fog = new THREE.Fog(fogColor, 10, 22);
+  const fogColor = new THREE.Color(0x141a16);
+  scene.fog = new THREE.Fog(fogColor, 12, 28);
 
-  const camera = new THREE.PerspectiveCamera(isMobile() ? 55 : 48, 1, 0.1, 100);
-  camera.position.copy(camOf(STOPS[0]));
+  const camera = new THREE.PerspectiveCamera(isMobile() ? 62 : 58, 1, 0.08, 100);
+  // Старт снаружи — затем вход
+  camera.position.set(...ENTER.outside.cam);
+  const lookNow = new THREE.Vector3(...ENTER.outside.look);
+  camera.lookAt(lookNow);
 
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -412,7 +440,7 @@ async function init() {
     scene.add(ring);
 
     const label = new THREE.Mesh(
-      new THREE.PlaneGeometry(isMobile() ? 2.0 : 2.35, isMobile() ? 0.95 : 1.1),
+      new THREE.PlaneGeometry(isMobile() ? 1.55 : 1.85, isMobile() ? 0.72 : 0.88),
       new THREE.MeshBasicMaterial({
         map: makeLabelTexture(stop.title, stop.subtitle, iconImgs[index]),
         transparent: true,
@@ -435,13 +463,15 @@ async function init() {
   }
 
   let activeIndex = 0;
-  const camFrom = camOf(STOPS[0]);
-  const camTo = camOf(STOPS[0]);
-  const lookFrom = lookOf(STOPS[0]);
-  const lookTo = lookOf(STOPS[0]);
-  const lookNow = lookOf(STOPS[0]);
+  const camFrom = new THREE.Vector3().copy(camera.position);
+  const camTo = new THREE.Vector3().copy(camera.position);
+  const lookFrom = new THREE.Vector3().copy(lookNow);
+  const lookTo = new THREE.Vector3().copy(lookNow);
   let camT = 1;
-  let orbitYaw = 0;
+  let lookYaw = 0;
+  let lookPitch = 0;
+  let entering = true;
+  let enterPhase = 0; // 0 outside→door, 1 door→inside stop
 
   function openStop(index = activeIndex) {
     const stop = STOPS[index];
@@ -449,9 +479,11 @@ async function init() {
   }
 
   function goTo(index, instant = false) {
+    if (entering && !instant) return;
     activeIndex = (index + STOPS.length) % STOPS.length;
     const stop = STOPS[activeIndex];
-    orbitYaw = 0;
+    lookYaw = 0;
+    lookPitch = 0;
     camFrom.copy(camera.position);
     lookFrom.copy(lookNow);
     camTo.copy(camOf(stop));
@@ -472,23 +504,64 @@ async function init() {
     });
   }
 
-  goTo(0, true);
+  function startEntrance() {
+    entering = true;
+    enterPhase = 0;
+    if (tourCopy) tourCopy.textContent = "Входим в дом…";
+    setHint("Вход в дом");
+
+    if (reducedMotion) {
+      entering = false;
+      goTo(0, true);
+      setHint(defaultHint());
+      return;
+    }
+
+    camera.position.set(...ENTER.outside.cam);
+    lookNow.set(...ENTER.outside.look);
+    camFrom.copy(camera.position);
+    lookFrom.copy(lookNow);
+    camTo.set(...ENTER.doorway.cam);
+    lookTo.set(...ENTER.doorway.look);
+    camT = 0;
+  }
+
+  function onEntranceStepDone() {
+    if (enterPhase === 0) {
+      enterPhase = 1;
+      camFrom.copy(camera.position);
+      lookFrom.copy(lookNow);
+      camTo.copy(camOf(STOPS[0]));
+      lookTo.copy(lookOf(STOPS[0]));
+      camT = 0;
+      if (tourCopy) tourCopy.textContent = "Осматриваемся внутри…";
+      return;
+    }
+    entering = false;
+    goTo(0, true);
+    setHint(defaultHint());
+  }
+
+  startEntrance();
 
   btnNext?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (entering) return;
     goTo(activeIndex + 1);
   });
   btnPrev?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (entering) return;
     goTo(activeIndex - 1);
   });
   btnOpen?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (entering) return;
     openStop(activeIndex);
   });
   stepsEl?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-index]");
-    if (!btn) return;
+    if (!btn || entering) return;
     e.stopPropagation();
     const index = Number(btn.dataset.index);
     if (index === activeIndex) openStop(index);
@@ -497,7 +570,7 @@ async function init() {
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  const drag = { active: false, moved: false, startX: 0, startY: 0, lastX: 0, pointerId: null };
+  const drag = { active: false, moved: false, startX: 0, startY: 0, lastX: 0, lastY: 0, pointerId: null };
 
   function resize() {
     const w = canvas.clientWidth || window.innerWidth;
@@ -505,15 +578,14 @@ async function init() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile() ? 1.75 : 2));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(h, 1);
-    camera.fov = isMobile() ? 55 : 48;
+    camera.fov = isMobile() ? 62 : 58;
     camera.updateProjectionMatrix();
   }
 
   resize();
   window.addEventListener("resize", () => {
     resize();
-    // Refresh camera target distance for orientation change
-    if (!drag.active) {
+    if (!drag.active && !entering) {
       camTo.copy(camOf(STOPS[activeIndex]));
       camFrom.copy(camera.position);
       camT = 0;
@@ -531,38 +603,49 @@ async function init() {
     return raycaster.intersectObjects(pickables, false)[0]?.object || null;
   }
 
-  function applyOrbit(dx) {
-    orbitYaw += dx * 0.005;
+  /** Осмотр изнутри: поворот взгляда вокруг позиции камеры */
+  function applyLook(dx, dy) {
+    lookYaw -= dx * 0.0045;
+    lookPitch -= dy * 0.003;
+    lookPitch = THREE.MathUtils.clamp(lookPitch, -0.55, 0.45);
+
     const stop = STOPS[activeIndex];
-    const base = camOf(stop).sub(lookOf(stop));
-    const spherical = new THREE.Spherical().setFromVector3(base);
-    spherical.theta += orbitYaw;
-    spherical.phi = THREE.MathUtils.clamp(spherical.phi, 0.4, 1.4);
-    camera.position.copy(lookOf(stop)).add(new THREE.Vector3().setFromSpherical(spherical));
-    camTo.copy(camera.position);
-    camFrom.copy(camera.position);
+    const baseDir = lookOf(stop).clone().sub(camOf(stop)).normalize();
+    const spherical = new THREE.Spherical().setFromVector3(baseDir);
+    spherical.theta += lookYaw;
+    spherical.phi = THREE.MathUtils.clamp(spherical.phi + lookPitch, 0.35, Math.PI - 0.35);
+
+    const dir = new THREE.Vector3().setFromSpherical(spherical);
+    lookNow.copy(camera.position).add(dir.multiplyScalar(3.2));
+    lookTo.copy(lookNow);
+    lookFrom.copy(lookNow);
     camT = 1;
   }
 
   canvas.addEventListener("pointerdown", (event) => {
+    if (entering) return;
     if (event.button != null && event.button !== 0) return;
     drag.active = true;
     drag.moved = false;
     drag.startX = event.clientX;
     drag.startY = event.clientY;
     drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
     drag.pointerId = event.pointerId;
     canvas.setPointerCapture?.(event.pointerId);
     setPointer(event.clientX, event.clientY);
   });
 
   canvas.addEventListener("pointermove", (event) => {
+    if (entering) return;
     setPointer(event.clientX, event.clientY);
     if (drag.active) {
       if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 10) drag.moved = true;
       const dx = event.clientX - drag.lastX;
+      const dy = event.clientY - drag.lastY;
       drag.lastX = event.clientX;
-      if (drag.moved) applyOrbit(dx);
+      drag.lastY = event.clientY;
+      if (drag.moved) applyLook(dx, dy);
       return;
     }
     const hit = pick();
@@ -592,38 +675,40 @@ async function init() {
   canvas.addEventListener("pointerup", endDrag);
   canvas.addEventListener("pointercancel", endDrag);
   canvas.addEventListener("click", (event) => {
-    if (drag.moved) return;
+    if (entering || drag.moved) return;
     setPointer(event.clientX, event.clientY);
     const hit = pick();
     if (hit?.userData?.href) window.location.assign(hit.userData.href);
   });
 
-  setHint(defaultHint());
+  setHint("Входим в дом…");
 
   let frame = 0;
   function animate() {
     frame = requestAnimationFrame(animate);
     if (camT < 1) {
-      camT = Math.min(1, camT + (reducedMotion ? 1 : 0.05));
+      const speed = entering ? 0.028 : 0.05;
+      camT = Math.min(1, camT + (reducedMotion ? 1 : speed));
       const k = 1 - Math.pow(1 - camT, 3);
       camera.position.lerpVectors(camFrom, camTo, k);
       lookNow.lerpVectors(lookFrom, lookTo, k);
+      if (camT >= 1 && entering) onEntranceStepDone();
     }
     camera.lookAt(lookNow);
 
     const t = performance.now() * 0.002;
     tiles.forEach((mesh) => {
       const base = STOPS[mesh.userData.index].position;
-      mesh.position.y = base.y + Math.sin(t + mesh.userData.index) * 0.05;
+      mesh.position.y = base.y + Math.sin(t + mesh.userData.index) * 0.04;
       mesh.rotation.y += 0.01;
     });
     labels.forEach((label) => {
-      const on = label.userData.index === activeIndex;
+      const on = label.userData.index === activeIndex && !entering;
       label.visible = on;
       label.quaternion.copy(camera.quaternion);
       const tile = tiles[label.userData.index];
       const base = STOPS[label.userData.index].position;
-      label.position.set(base.x, tile.position.y + 1.1, base.z);
+      label.position.set(base.x, tile.position.y + 0.85, base.z);
     });
     pickables.forEach((obj) => {
       if (obj.userData.kind === "hit") obj.position.copy(tiles[obj.userData.index].position);

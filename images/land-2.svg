@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#334438"/>
+      <stop offset="1" stop-color="#171e18"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <path d="M700 1000c-40-200 40-400 20-600s60-300 120-400" fill="none" stroke="#8a7a5a" stroke-width="70"/>
+   <circle cx="400" cy="400" r="50" fill="#4a7a52"/>
+   <circle cx="1100" cy="350" r="70" fill="#3f6a48"/>
+  <rect x="0" y="720" width="1600" height="280" fill="rgba(10,14,12,0.45)"/>
+  <text x="80" y="880" fill="#ebe3cf" font-family="Arial,sans-serif" font-size="54" font-weight="700">Дорожки</text>
+</svg>

@@ -3,26 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Сомнительный дом — мини-экскурсия</title>
-  <meta name="description" content="3D-экскурсия по дому и каталог строительных направлений на Three.js." />
+  <title>Сомнительный дом — 3D-стройка</title>
+  <meta name="description" content="Интерактивная 3D-презентация стройки дома: от фундамента до сдачи." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/site.css" />
 </head>
 <body class="hub-body">
-  <div class="hub">
-    <canvas id="nav-canvas" aria-label="3D-экскурсия по дому"></canvas>
+  <div class="hub hub--build">
+    <canvas id="nav-canvas" aria-label="3D-презентация стройки дома"></canvas>
 
     <div class="hub-ui">
       <header class="hub-top">
         <div class="hub-brand">
-          <p class="webgl-badge">Three.js · экскурсия</p>
+          <p class="webgl-badge">Three.js · стройка</p>
           <h1>Сомнительный дом*</h1>
-          <p id="tour-copy" class="tour-copy">Входим в дом — дальше осмотр изнутри.</p>
+          <p id="tour-copy" class="tour-copy">Этап 1. Подготовка участка, геология и заливка фундамента — основа дома.</p>
+          <div
+            class="build-progress"
+            id="build-progress"
+            role="progressbar"
+            aria-valuemin="1"
+            aria-valuemax="5"
+            aria-valuenow="1"
+            aria-label="Прогресс стройки"
+          >
+            <div class="build-progress__bar"></div>
+            <span data-progress-label>1 / 5</span>
+          </div>
         </div>
-        <div class="hub-actions" role="group" aria-label="Управление экскурсией">
-          <button type="button" class="btn btn--ghost btn--icon" id="tour-prev" aria-label="Назад">←</button>
+        <div class="hub-actions" role="group" aria-label="Навигация по этапам">
+          <button type="button" class="btn btn--ghost btn--icon" id="tour-prev" aria-label="Предыдущий этап">←</button>
           <button type="button" class="btn btn--ghost" id="tour-next">Далее</button>
           <button type="button" class="btn" id="tour-open">Открыть</button>
           <button type="button" class="btn btn--ghost" id="list-toggle" aria-expanded="false" aria-controls="hub-fallback">Список</button>
@@ -32,8 +44,8 @@
       <div class="hub-spacer" aria-hidden="true"></div>
 
       <div class="hub-bottom">
-        <ol class="tour-steps" id="tour-steps" aria-label="Точки экскурсии"></ol>
-        <p class="hub-hint" id="hub-hint">Загрузка…</p>
+        <ol class="tour-steps" id="tour-steps" aria-label="Этапы стройки"></ol>
+        <p class="hub-hint" id="hub-hint">Загрузка презентации…</p>
       </div>
     </div>
 

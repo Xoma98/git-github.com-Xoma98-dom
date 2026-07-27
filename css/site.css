@@ -369,6 +369,61 @@ p {
     radial-gradient(ellipse at 50% 100%, #1a2420, #0c100e 70%);
 }
 
+.hub--build {
+  background:
+    linear-gradient(180deg, #9eb6c2 0%, #87a4b0 42%, #6f8f6a 100%);
+}
+
+.hub--build #nav-canvas {
+  background: #87a4b0;
+}
+
+.hub--build .webgl-badge {
+  color: #c6a15b;
+}
+
+.hub--build .tour-step.is-active,
+.hub--build .tour-step:hover {
+  background: #c6a15b;
+  color: #121816;
+  border-color: #c6a15b;
+}
+
+.build-progress {
+  --p: 20%;
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 22rem;
+}
+
+.build-progress__bar {
+  position: relative;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(235, 227, 207, 0.18);
+  overflow: hidden;
+}
+
+.build-progress__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--p);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8a6a32, #e2c27a);
+  transition: width 0.45s ease;
+}
+
+.build-progress [data-progress-label] {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: #c9bda3;
+  font-variant-numeric: tabular-nums;
+}
+
 #nav-canvas {
   position: absolute;
   inset: 0;

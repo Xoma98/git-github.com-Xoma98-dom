@@ -1,79 +1,74 @@
 import * as THREE from "https://unpkg.com/three@0.170.0/build/three.module.js";
 
-const STOPS = [
+/**
+ * 3D-презентация стройки дома: 5 этапов → страницы категорий.
+ */
+const STAGES = [
   {
     id: "private",
-    title: "Частная территория",
-    subtitle: "Вид на участок",
+    title: "Участок и фундамент",
+    subtitle: "Частная территория",
     href: "private.html",
-    copy: "Вы внутри: из окна виден участок — фундамент и посадка дома начинаются отсюда.",
+    copy: "Этап 1. Подготовка участка, геология и заливка фундамента — основа дома.",
     icon: "images/textures/icon-private.svg",
-    position: new THREE.Vector3(-2.6, 1.45, 1.6),
-    camera: { desktop: [0.2, 1.58, 2.15], mobile: [0.15, 1.58, 2.35] },
-    lookAt: [-2.8, 1.35, 2.4],
     color: 0xd4a017,
+    cam: { desktop: [8.5, 5.2, 9.2], mobile: [9.5, 6.2, 10.2] },
+    look: [0, 0.6, 0.2],
   },
   {
     id: "summer",
-    title: "Летние домики",
-    subtitle: "Окно во двор",
+    title: "Коробка дома",
+    subtitle: "Стены и проёмы",
     href: "summer.html",
-    copy: "Справа во дворе — лёгкий гостевой домик для сезона и отдыха.",
+    copy: "Этап 2. Возводим стены, окна и дверные проёмы — появляется объём будущего дома.",
     icon: "images/textures/icon-summer.svg",
-    position: new THREE.Vector3(2.55, 1.45, 1.5),
-    camera: { desktop: [0.35, 1.58, 1.9], mobile: [0.2, 1.58, 2.1] },
-    lookAt: [3.2, 1.2, 2.35],
     color: 0xc48a2a,
-  },
-  {
-    id: "landscaping",
-    title: "Отделка участка",
-    subtitle: "Взгляд к двери",
-    href: "landscaping.html",
-    copy: "Обернитесь к входу: дорожка, газон и двор — отделка участка с порога.",
-    icon: "images/textures/icon-land.svg",
-    position: new THREE.Vector3(0.15, 1.15, 2.85),
-    camera: { desktop: [0.1, 1.58, 1.35], mobile: [0.05, 1.58, 1.55] },
-    lookAt: [0.1, 1.0, 4.4],
-    color: 0x6f8f6a,
+    cam: { desktop: [7.2, 4.2, 8.0], mobile: [8.2, 5.0, 9.0] },
+    look: [0, 1.4, 0.2],
   },
   {
     id: "finish",
-    title: "Отделка под ключ",
-    subtitle: "Гостиная",
+    title: "Кровля и фасад",
+    subtitle: "Закрываем контур",
     href: "finish.html",
-    copy: "Гостиная после чистовой: стены, пол, свет и мебель — дом готов к жизни.",
+    copy: "Этап 3. Крыша, фасад и инженерия — дом защищён от погоды и готов к отделке.",
     icon: "images/textures/icon-finish.svg",
-    position: new THREE.Vector3(-1.35, 1.45, -0.55),
-    camera: { desktop: [1.1, 1.58, 0.9], mobile: [0.95, 1.58, 1.05] },
-    lookAt: [-1.4, 1.25, -0.9],
     color: 0xe8dfc8,
+    cam: { desktop: [6.4, 3.8, 7.2], mobile: [7.4, 4.6, 8.2] },
+    look: [0, 1.8, 0.1],
+  },
+  {
+    id: "landscaping",
+    title: "Благоустройство",
+    subtitle: "Отделка участка",
+    href: "landscaping.html",
+    copy: "Этап 4. Дорожки, газон и свет — двор работает каждый день, не только на фото.",
+    icon: "images/textures/icon-land.svg",
+    color: 0x6f8f6a,
+    cam: { desktop: [7.5, 3.4, 8.5], mobile: [8.5, 4.2, 9.5] },
+    look: [0.3, 0.5, 2.0],
   },
   {
     id: "apartments",
-    title: "Многоквартирные",
-    subtitle: "Вид из окна",
+    title: "Сдача и масштаб",
+    subtitle: "От частного к ЖК",
     href: "apartments.html",
-    copy: "В глубине — другой масштаб: секции и этажи многоквартирного дома.",
+    copy: "Этап 5. Дом готов. Рядом — другой масштаб: многоквартирная застройка.",
     icon: "images/textures/icon-apt.svg",
-    position: new THREE.Vector3(1.8, 1.55, -1.55),
-    camera: { desktop: [-0.4, 1.62, -0.2], mobile: [-0.55, 1.62, 0.05] },
-    lookAt: [2.35, 1.7, -2.35],
     color: 0x8aa4b8,
+    cam: { desktop: [11, 6.0, 11], mobile: [12, 7.0, 12] },
+    look: [2.2, 2.0, -1.0],
   },
 ];
 
-/** Точки анимации входа: снаружи → через дверь → внутрь */
-const ENTER = {
-  outside: {
-    cam: [0, 1.55, 5.6],
-    look: [0, 1.35, 3.35],
-  },
-  doorway: {
-    cam: [0, 1.55, 3.55],
-    look: [0, 1.4, 1.2],
-  },
-};
+const MARKER_POS = [
+  [0, 1.1, 0.2],
+  [0, 2.0, 2.85],
+  [0, 3.6, 0.1],
+  [0.2, 0.7, 4.4],
+  [6.5, 4.2, -3.2],
+];
+
 const canvas = document.getElementById("nav-canvas");
 const hint = document.getElementById("hub-hint");
 const tourCopy = document.getElementById("tour-copy");
@@ -81,6 +76,7 @@ const stepsEl = document.getElementById("tour-steps");
 const btnPrev = document.getElementById("tour-prev");
 const btnNext = document.getElementById("tour-next");
 const btnOpen = document.getElementById("tour-open");
+const progressEl = document.getElementById("build-progress");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function isMobile() {
@@ -93,23 +89,32 @@ function setHint(text) {
 
 function defaultHint() {
   return isMobile()
-    ? "Осматривайтесь свайпом · «Открыть» — раздел"
-    : "Осматривайтесь мышью · клик по плитке или «Открыть»";
+    ? "Свайп — осмотр · «Далее» — следующий этап"
+    : "Тяните мышью · «Далее» — этап стройки";
 }
 
-function camOf(stop) {
-  const arr = isMobile() ? stop.camera.mobile : stop.camera.desktop;
-  return new THREE.Vector3(...arr);
+function camOf(stage) {
+  return new THREE.Vector3(...(isMobile() ? stage.cam.mobile : stage.cam.desktop));
 }
 
-function lookOf(stop) {
-  return new THREE.Vector3(...stop.lookAt);
+function lookOf(stage) {
+  return new THREE.Vector3(...stage.look);
+}
+
+function solid(color, opts = {}) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness: opts.roughness ?? 0.75,
+    metalness: opts.metalness ?? 0.05,
+    emissive: opts.emissive ?? 0x000000,
+    emissiveIntensity: opts.emissiveIntensity ?? 0,
+    flatShading: opts.flat ?? false,
+  });
 }
 
 function loadTexture(url) {
-  return new Promise((resolve, reject) => {
-    const loader = new THREE.TextureLoader();
-    loader.load(
+  return new Promise((resolve) => {
+    new THREE.TextureLoader().load(
       url,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
@@ -119,63 +124,63 @@ function loadTexture(url) {
         resolve(tex);
       },
       undefined,
-      reject
+      () => resolve(null)
     );
   });
 }
 
-function makeLabelTexture(title, subtitle, iconImg) {
+function textured(tex, color, repeat = [2, 2]) {
+  const mat = solid(color);
+  if (tex) {
+    const map = tex.clone();
+    map.colorSpace = tex.colorSpace;
+    map.wrapS = THREE.RepeatWrapping;
+    map.wrapT = THREE.RepeatWrapping;
+    map.repeat.set(repeat[0], repeat[1]);
+    map.needsUpdate = true;
+    mat.map = map;
+    mat.color.set(0xffffff);
+    mat.needsUpdate = true;
+  }
+  return mat;
+}
+
+function makeBadgeTexture(title, subtitle, accent) {
   const w = 1024;
-  const h = 480;
+  const h = 420;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
   const ctx = c.getContext("2d");
+  const hex = `#${accent.toString(16).padStart(6, "0")}`;
 
-  ctx.fillStyle = "rgba(14,19,16,0.94)";
-  roundRect(ctx, 12, 12, w - 24, h - 24, 28);
+  ctx.fillStyle = "rgba(16, 22, 18, 0.94)";
+  roundRect(ctx, 18, 18, w - 36, h - 36, 28);
   ctx.fill();
-  ctx.strokeStyle = "#d4a017";
+  ctx.strokeStyle = hex;
   ctx.lineWidth = 8;
-  roundRect(ctx, 12, 12, w - 24, h - 24, 28);
+  roundRect(ctx, 18, 18, w - 36, h - 36, 28);
   ctx.stroke();
 
-  if (iconImg) {
-    ctx.drawImage(iconImg, 48, 90, 160, 160);
-  }
+  ctx.fillStyle = hex;
+  ctx.font = "600 28px Commissioner, Arial, sans-serif";
+  ctx.fillText("ЭТАП СТРОЙКИ", 64, 100);
 
   ctx.fillStyle = "#ebe3cf";
-  ctx.font = "700 52px Unbounded, Arial, sans-serif";
-  wrapText(ctx, title, iconImg ? 240 : 64, 160, w - (iconImg ? 300 : 120), 60);
+  ctx.font = "700 48px Unbounded, Arial, sans-serif";
+  ctx.fillText(title, 64, 185);
 
-  ctx.fillStyle = "#d4a017";
-  ctx.font = "500 34px Commissioner, Arial, sans-serif";
-  ctx.fillText(subtitle, iconImg ? 240 : 64, 280);
-
-  ctx.fillStyle = "#b8ae97";
+  ctx.fillStyle = "#c9bda3";
   ctx.font = "500 30px Commissioner, Arial, sans-serif";
-  ctx.fillText("Нажмите, чтобы открыть →", iconImg ? 240 : 64, 360);
+  ctx.fillText(subtitle, 64, 250);
+
+  ctx.fillStyle = hex;
+  ctx.font = "500 28px Commissioner, Arial, sans-serif";
+  ctx.fillText("Открыть направление →", 64, 335);
 
   const texture = new THREE.CanvasTexture(c);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
-}
-
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(" ");
-  let line = "";
-  let yy = y;
-  for (let i = 0; i < words.length; i++) {
-    const test = `${line}${words[i]} `;
-    if (ctx.measureText(test).width > maxWidth && i > 0) {
-      ctx.fillText(line.trim(), x, yy);
-      line = `${words[i]} `;
-      yy += lineHeight;
-    } else {
-      line = test;
-    }
-  }
-  ctx.fillText(line.trim(), x, yy);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -188,414 +193,384 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function loadImage(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
+function mesh(parent, geo, material, pos, rot) {
+  const m = new THREE.Mesh(geo, material);
+  m.position.set(pos[0], pos[1], pos[2]);
+  if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
 }
 
-async function buildHouse(scene, textures) {
-  const mat = (map, color, repeat = [2, 2]) => {
-    let tex = null;
-    if (map && map.isTexture) {
-      tex = map.clone();
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(repeat[0], repeat[1]);
-      tex.needsUpdate = true;
-    }
-    return new THREE.MeshStandardMaterial({
-      map: tex,
-      color: tex ? 0xffffff : color,
-      roughness: 0.82,
-      metalness: 0.04,
-    });
-  };
+async function buildPresentation(scene, textures) {
+  const root = new THREE.Group();
+  scene.add(root);
 
-  const wall = mat(textures.brick, 0x8b5a3c, [2.5, 1.4]);
-  const plaster = mat(textures.plaster, 0xc7bead, [1.5, 1.5]);
-  const wood = mat(textures.wood, 0x6e452c, [1.2, 1.2]);
-  const floor = mat(textures.floor, 0xb89b6e, [3, 3]);
-  const roof = mat(textures.roof, 0x5a6a72, [3, 2]);
-  const grass = mat(textures.grass, 0x3f6b45, [4, 4]);
-  const wallpaper = mat(textures.wallpaper, 0xe8dfc8, [2, 2]);
-  const ceramic = mat(textures.ceramic, 0xdfe6ea, [2, 2]);
-  const glass = new THREE.MeshPhysicalMaterial({
-    color: 0xb8dcff,
-    transmission: 0.65,
-    transparent: true,
-    opacity: 0.55,
-    roughness: 0.08,
-    metalness: 0.05,
-    thickness: 0.2,
-  });
+  const brick = textured(textures.brick, 0x9a5b3c, [2.4, 1.3]);
+  const wood = textured(textures.wood, 0x7a4a2c, [1.5, 1.5]);
+  const floor = textured(textures.floor, 0xc4a574, [2.5, 2.5]);
+  const roofMat = textured(textures.roof, 0x6a7a82, [2.5, 1.8]);
+  const grass = textured(textures.grass, 0x4a8a52, [6, 6]);
+  const plaster = textured(textures.plaster, 0xd2c8b4, [1.5, 1.5]);
+  const ceramic = textured(textures.ceramic, 0xe8eef0, [2, 2]);
+  const concrete = solid(0xa8aea8, { roughness: 0.9 });
+  const soil = solid(0x6b533c, { roughness: 1 });
+  const glass = solid(0x9ec8ef, { roughness: 0.15, metalness: 0.25 });
+  glass.transparent = true;
+  glass.opacity = 0.55;
+  const steel = solid(0xb0b8be, { metalness: 0.75, roughness: 0.3 });
+  const leaf = solid(0x3f8a4a);
+  const gold = solid(0xd4a017, { emissive: 0xd4a017, emissiveIntensity: 0.35 });
 
-  const add = (geo, material, pos, rot) => {
-    const mesh = new THREE.Mesh(geo, material);
-    mesh.position.set(...pos);
-    if (rot) mesh.rotation.set(...rot);
-    scene.add(mesh);
-    return mesh;
-  };
+  // Ground
+  const plot = new THREE.Group();
+  root.add(plot);
+  mesh(plot, new THREE.CircleGeometry(16, 64), grass, [0, 0, 0], [-Math.PI / 2, 0, 0]);
+  mesh(plot, new THREE.BoxGeometry(9.4, 0.1, 7.8), soil, [0, 0.06, 0.2]);
 
-  // Ground & yard
-  add(new THREE.CircleGeometry(8.5, 64), grass, [0, -0.05, 0.4], [-Math.PI / 2, 0, 0]);
-  add(new THREE.BoxGeometry(8.6, 0.16, 7.4), floor, [0, 0.02, 0.15]);
+  // Site boundary tape
+  const tape = solid(0xe2b84a);
+  for (const [x, z] of [
+    [-4.4, -3.4],
+    [4.4, -3.4],
+    [-4.4, 3.6],
+    [4.4, 3.6],
+  ]) {
+    mesh(plot, new THREE.CylinderGeometry(0.05, 0.05, 1.0, 8), wood, [x, 0.55, z]);
+    mesh(plot, new THREE.BoxGeometry(0.28, 0.14, 0.03), gold, [x, 1.0, z]);
+  }
+  mesh(plot, new THREE.BoxGeometry(8.8, 0.02, 0.04), tape, [0, 0.9, -3.4]);
+  mesh(plot, new THREE.BoxGeometry(8.8, 0.02, 0.04), tape, [0, 0.9, 3.6]);
 
-  // House shell — вход открыт, внутри потолок
-  add(new THREE.BoxGeometry(8.6, 2.9, 0.2), wall, [0, 1.5, -3.35]);
-  add(new THREE.BoxGeometry(0.2, 2.9, 6.7), wall, [-4.2, 1.5, 0]);
-  add(new THREE.BoxGeometry(0.2, 2.9, 6.7), plaster, [4.2, 1.5, 0]);
-  add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [-2.85, 1.5, 3.35]);
-  add(new THREE.BoxGeometry(3.0, 2.9, 0.2), wall, [2.85, 1.5, 3.35]);
+  const foundation = new THREE.Group();
+  const walls = new THREE.Group();
+  const roofGroup = new THREE.Group();
+  const yard = new THREE.Group();
+  const aptGroup = new THREE.Group();
+  root.add(foundation, walls, roofGroup, yard, aptGroup);
 
-  // Ceiling — ощущение, что мы внутри
-  add(new THREE.BoxGeometry(8.4, 0.12, 6.5), plaster, [0, 2.88, 0.05]);
+  // Foundation
+  mesh(foundation, new THREE.BoxGeometry(7.4, 0.5, 6.0), concrete, [0, 0.35, 0.15]);
+  mesh(foundation, new THREE.BoxGeometry(7.8, 0.25, 6.4), concrete, [0, 0.14, 0.15]);
+  for (let i = -3; i <= 3; i++) {
+    mesh(foundation, new THREE.CylinderGeometry(0.035, 0.035, 0.65, 6), steel, [i * 0.95, 0.7, -2.3]);
+    mesh(foundation, new THREE.CylinderGeometry(0.035, 0.035, 0.65, 6), steel, [i * 0.95, 0.7, 2.5]);
+  }
 
-  // Interior partition with wallpaper
-  add(new THREE.BoxGeometry(0.12, 2.5, 3.2), wallpaper, [-1.5, 1.3, -0.6]);
+  // Walls
+  const wallH = 2.7;
+  mesh(walls, new THREE.BoxGeometry(7.0, wallH, 0.3), brick, [0, 1.7, -2.6]);
+  mesh(walls, new THREE.BoxGeometry(0.3, wallH, 5.3), brick, [-3.35, 1.7, 0.05]);
+  mesh(walls, new THREE.BoxGeometry(0.3, wallH, 5.3), plaster, [3.35, 1.7, 0.05]);
+  mesh(walls, new THREE.BoxGeometry(2.5, wallH, 0.3), brick, [-2.15, 1.7, 2.7]);
+  mesh(walls, new THREE.BoxGeometry(2.5, wallH, 0.3), brick, [2.15, 1.7, 2.7]);
+  mesh(walls, new THREE.BoxGeometry(6.6, 0.14, 5.1), floor, [0, 0.62, 0.05]);
+  mesh(walls, new THREE.BoxGeometry(1.35, 1.25, 0.1), glass, [-2.05, 1.85, 2.88]);
+  mesh(walls, new THREE.BoxGeometry(1.35, 1.25, 0.1), glass, [2.05, 1.85, 2.88]);
+  mesh(walls, new THREE.BoxGeometry(1.15, 2.15, 0.12), wood, [0, 1.5, 2.8]);
+  // Scaffold
+  mesh(walls, new THREE.BoxGeometry(0.1, 3.4, 0.1), steel, [-3.85, 1.75, 1.3]);
+  mesh(walls, new THREE.BoxGeometry(0.1, 3.4, 0.1), steel, [-3.85, 1.75, -1.3]);
+  mesh(walls, new THREE.BoxGeometry(0.1, 0.1, 2.7), steel, [-3.85, 2.8, 0]);
+  mesh(walls, new THREE.BoxGeometry(2.4, 0.55, 1.0), wood, [-4.55, 0.45, 0]);
 
-  // Roof (снаружи)
-  const roofMesh = add(new THREE.ConeGeometry(6.4, 1.7, 4), roof, [0, 3.55, 0]);
+  // Roof
+  const roofMesh = mesh(roofGroup, new THREE.ConeGeometry(5.3, 1.85, 4), roofMat, [0, 3.75, 0.05]);
   roofMesh.rotation.y = Math.PI / 4;
+  mesh(roofGroup, new THREE.BoxGeometry(7.1, 0.18, 5.5), wood, [0, 3.05, 0.05]);
+  mesh(roofGroup, new THREE.BoxGeometry(0.6, 1.0, 0.6), brick, [1.7, 4.2, -0.55]);
 
-  // Open door — приглашает войти
-  const door = add(new THREE.BoxGeometry(1.15, 2.15, 0.1), wood, [0.55, 1.12, 3.2]);
-  door.rotation.y = -1.05;
+  // Yard
+  mesh(yard, new THREE.BoxGeometry(1.35, 0.1, 4.5), ceramic, [0, 0.12, 4.4]);
+  mesh(yard, new THREE.CylinderGeometry(0.42, 0.48, 0.45, 12), wood, [-2.3, 0.35, 4.1]);
+  mesh(yard, new THREE.SphereGeometry(0.5, 16, 16), leaf, [-2.3, 0.85, 4.1]);
+  mesh(yard, new THREE.CylinderGeometry(0.42, 0.48, 0.45, 12), wood, [2.4, 0.35, 4.2]);
+  mesh(yard, new THREE.SphereGeometry(0.45, 16, 16), leaf, [2.4, 0.8, 4.2]);
+  for (const z of [3.3, 4.15, 5.0]) {
+    mesh(yard, new THREE.CylinderGeometry(0.06, 0.06, 0.75, 8), steel, [-0.9, 0.45, z]);
+    mesh(
+      yard,
+      new THREE.SphereGeometry(0.12, 12, 12),
+      solid(0xffe2a8, { emissive: 0xffc857, emissiveIntensity: 1.1 }),
+      [-0.9, 0.9, z]
+    );
+  }
+  for (let i = 0; i < 9; i++) {
+    mesh(yard, new THREE.BoxGeometry(0.1, 0.75, 0.1), wood, [-5.4, 0.45, -3.2 + i * 0.95]);
+  }
 
-  // Windows
-  add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [-2.55, 1.55, 3.46]);
-  add(new THREE.BoxGeometry(1.35, 1.15, 0.06), glass, [2.55, 1.55, 3.46]);
-  const frameMat = new THREE.MeshStandardMaterial({ color: 0xe8dfc8, roughness: 0.6 });
-  add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [-2.55, 2.15, 3.48]);
-  add(new THREE.BoxGeometry(1.5, 0.08, 0.08), frameMat, [2.55, 2.15, 3.48]);
-
-  // Living furniture
-  add(new THREE.BoxGeometry(2.3, 0.5, 0.9), wood, [-1.1, 0.42, -0.85]);
-  add(new THREE.BoxGeometry(2.3, 0.35, 0.2), wood, [-1.1, 0.85, -1.2]);
-  add(new THREE.CylinderGeometry(0.5, 0.55, 0.4, 24), wood, [0.1, 0.35, 0.45]);
-  add(new THREE.CylinderGeometry(0.52, 0.52, 0.05, 24), ceramic, [0.1, 0.58, 0.45]);
-
-  // Renovation props
-  add(new THREE.CylinderGeometry(0.22, 0.25, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.4 }), [-2.6, 0.35, 1.4]);
-  add(new THREE.BoxGeometry(0.08, 1.8, 0.45), wood, [1.3, 0.95, 1.8], [0, 0.4, -0.15]);
-  add(new THREE.BoxGeometry(0.7, 0.12, 0.35), new THREE.MeshStandardMaterial({ color: 0x4a5560 }), [-2.1, 0.2, 2.0]);
-
-  // Picture / wall accent inside
-  add(new THREE.BoxGeometry(0.9, 0.65, 0.04), new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.5 }), [-4.05, 1.55, 0.2], [0, Math.PI / 2, 0]);
-
-  // Summer cabin outside (видно из окна)
-  add(new THREE.BoxGeometry(1.9, 1.45, 1.5), wood, [3.35, 0.8, 2.45]);
-  const cabinRoof = add(new THREE.ConeGeometry(1.45, 0.65, 4), roof, [3.35, 1.8, 2.45]);
-  cabinRoof.rotation.y = Math.PI / 4;
-  add(new THREE.BoxGeometry(0.35, 0.7, 0.06), glass, [3.35, 0.95, 3.22]);
-
-  // Path & planters
-  add(new THREE.BoxGeometry(1.15, 0.06, 3.4), ceramic, [0.1, 0.05, 4.55]);
-  add(new THREE.CylinderGeometry(0.35, 0.4, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8b5a3c }), [-1.4, 0.25, 4.2]);
-  add(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0x3f6b45 }), [-1.4, 0.55, 4.2]);
-  add(new THREE.CylinderGeometry(0.35, 0.4, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8b5a3c }), [1.5, 0.25, 4.3]);
-  add(new THREE.SphereGeometry(0.28, 12, 12), new THREE.MeshStandardMaterial({ color: 0x4f8158 }), [1.5, 0.52, 4.3]);
-
-  // Apartment tower (видно из глубины)
-  add(new THREE.BoxGeometry(1.45, 3.6, 1.45), plaster, [2.45, 1.85, -2.45]);
-  for (let row = 0; row < 5; row++) {
-    for (let col = 0; col < 2; col++) {
-      add(
-        new THREE.PlaneGeometry(0.32, 0.32),
-        glass,
-        [1.71, 0.55 + row * 0.55, -2.2 + col * 0.5],
-        [0, Math.PI / 2, 0]
-      );
+  // Apartments + crane
+  mesh(aptGroup, new THREE.BoxGeometry(2.5, 6.5, 2.3), plaster, [6.6, 3.3, -3.3]);
+  mesh(aptGroup, new THREE.BoxGeometry(2.1, 5.2, 1.9), plaster, [8.8, 2.65, -2.7]);
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 3; col++) {
+      mesh(aptGroup, new THREE.PlaneGeometry(0.38, 0.38), glass, [5.33, 0.95 + row * 0.9, -3.85 + col * 0.58], [
+        0,
+        Math.PI / 2,
+        0,
+      ]);
     }
   }
+  mesh(aptGroup, new THREE.CylinderGeometry(0.1, 0.14, 8.0, 10), steel, [10.4, 4.1, -1.4]);
+  mesh(aptGroup, new THREE.BoxGeometry(5.8, 0.14, 0.2), steel, [8.1, 7.9, -1.4]);
+  mesh(aptGroup, new THREE.BoxGeometry(0.25, 0.9, 0.25), gold, [10.4, 8.05, -1.4]);
 
-  // Interior lighting
-  const lamp = new THREE.PointLight(0xffe2a8, 1.35, 9, 2);
-  lamp.position.set(-0.4, 2.35, 0.3);
-  scene.add(lamp);
-  const entryLight = new THREE.PointLight(0xfff2d0, 0.85, 6, 2);
-  entryLight.position.set(0, 2.2, 2.4);
-  scene.add(entryLight);
-  const windowLight = new THREE.PointLight(0xcfe8ff, 0.55, 5, 2);
-  windowLight.position.set(-2.4, 1.7, 2.8);
-  scene.add(windowLight);
-}
+  const houseLight = new THREE.PointLight(0xffe2a8, 0, 14, 2);
+  houseLight.position.set(0, 2.3, 0.3);
+  root.add(houseLight);
 
-async function init() {
-  if (!canvas || !window.WebGLRenderingContext) {
-    setHint("WebGL недоступен — откройте «Список»");
-    return;
-  }
-
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
+  const layers = [foundation, walls, roofGroup, yard, aptGroup];
+  layers.forEach((layer) => {
+    layer.visible = false;
+    layer.traverse((obj) => {
+      if (obj.isMesh) {
+        obj.userData.baseY = obj.position.y;
+      }
     });
-  } catch {
-    setHint("Не удалось запустить 3D");
-    return;
-  }
+  });
 
-  const scene = new THREE.Scene();
-  const fogColor = new THREE.Color(0x141a16);
-  scene.fog = new THREE.Fog(fogColor, 12, 28);
-
-  const camera = new THREE.PerspectiveCamera(isMobile() ? 62 : 58, 1, 0.08, 100);
-  // Старт снаружи — затем вход
-  camera.position.set(...ENTER.outside.cam);
-  const lookNow = new THREE.Vector3(...ENTER.outside.look);
-  camera.lookAt(lookNow);
-
-  renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-  const sun = new THREE.DirectionalLight(0xffe2a8, 1.35);
-  sun.position.set(5, 9, 4);
-  scene.add(sun);
-  const fill = new THREE.DirectionalLight(0x8fb59a, 0.4);
-  fill.position.set(-6, 3, -3);
-  scene.add(fill);
-  const hemi = new THREE.HemisphereLight(0xddeeff, 0x3a4a30, 0.35);
-  scene.add(hemi);
-
-  const textures = {};
-  try {
-    const [brick, plaster, wood, floor, roof, grass, wallpaper, ceramic] = await Promise.all([
-      loadTexture("images/textures/brick.svg"),
-      loadTexture("images/textures/plaster.svg"),
-      loadTexture("images/textures/wood.svg"),
-      loadTexture("images/textures/floor.svg"),
-      loadTexture("images/textures/roof.svg"),
-      loadTexture("images/textures/grass.svg"),
-      loadTexture("images/textures/wallpaper.svg"),
-      loadTexture("images/textures/tile-ceramic.svg"),
-    ]);
-    Object.assign(textures, { brick, plaster, wood, floor, roof, grass, wallpaper, ceramic });
-  } catch {
-    // Materials fall back to solid colors inside buildHouse
-  }
-
-  await buildHouse(scene, textures);
-
-  const pickables = [];
-  const tiles = [];
+  const markers = [];
   const labels = [];
-  const iconImgs = await Promise.all(
-    STOPS.map((s) => loadImage(s.icon).catch(() => null))
-  );
+  const pickables = [];
 
-  STOPS.forEach((stop, index) => {
-    const tileMat = new THREE.MeshStandardMaterial({
-      color: stop.color,
-      emissive: stop.color,
-      emissiveIntensity: 0.4,
-      roughness: 0.3,
-      metalness: 0.25,
-      side: THREE.DoubleSide,
-    });
-    const tile = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.95, 0.12), tileMat);
-    tile.position.copy(stop.position);
-    tile.userData = { href: stop.href, title: stop.title, index, kind: "tile" };
-    scene.add(tile);
-    tiles.push(tile);
-
-    // Icon plane on tile front
-    if (iconImgs[index]) {
-      const iconTex = new THREE.CanvasTexture(iconImgs[index]);
-      iconTex.colorSpace = THREE.SRGBColorSpace;
-      const icon = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.72, 0.72),
-        new THREE.MeshBasicMaterial({ map: iconTex, transparent: true })
-      );
-      icon.position.set(0, 0, 0.08);
-      tile.add(icon);
-    }
-
-    const hit = new THREE.Mesh(
-      new THREE.SphereGeometry(1.05, 16, 16),
-      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+  STAGES.forEach((stage, i) => {
+    const marker = mesh(
+      root,
+      new THREE.SphereGeometry(0.3, 20, 20),
+      solid(stage.color, { emissive: stage.color, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.2 }),
+      MARKER_POS[i]
     );
-    hit.position.copy(stop.position);
-    hit.userData = { href: stop.href, title: stop.title, index, kind: "hit" };
-    scene.add(hit);
-    pickables.push(hit, tile);
+    marker.userData = { ...stage, index: i, kind: "marker" };
+    markers.push(marker);
+    pickables.push(marker);
 
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.72, 0.92, 40),
-      new THREE.MeshBasicMaterial({ color: 0xd4a017, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
+    const ring = mesh(
+      root,
+      new THREE.RingGeometry(0.4, 0.55, 32),
+      new THREE.MeshBasicMaterial({ color: stage.color, transparent: true, opacity: 0.6, side: THREE.DoubleSide }),
+      [MARKER_POS[i][0], 0.08, MARKER_POS[i][2]],
+      [-Math.PI / 2, 0, 0]
     );
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.set(stop.position.x, 0.08, stop.position.z);
-    scene.add(ring);
+    ring.castShadow = false;
 
-    const label = new THREE.Mesh(
-      new THREE.PlaneGeometry(isMobile() ? 1.55 : 1.85, isMobile() ? 0.72 : 0.88),
+    const hit = mesh(
+      root,
+      new THREE.SphereGeometry(0.75, 12, 12),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+      MARKER_POS[i]
+    );
+    hit.userData = { ...stage, index: i, kind: "hit" };
+    hit.castShadow = false;
+    pickables.push(hit);
+
+    const label = mesh(
+      root,
+      new THREE.PlaneGeometry(2.5, 1.05),
       new THREE.MeshBasicMaterial({
-        map: makeLabelTexture(stop.title, stop.subtitle, iconImgs[index]),
+        map: makeBadgeTexture(stage.title, stage.subtitle, stage.color),
         transparent: true,
-        side: THREE.DoubleSide,
         depthWrite: false,
-      })
+        side: THREE.DoubleSide,
+      }),
+      [MARKER_POS[i][0], MARKER_POS[i][1] + 0.95, MARKER_POS[i][2]]
     );
-    label.position.set(stop.position.x, stop.position.y + 1.1, stop.position.z);
-    label.userData = { href: stop.href, title: stop.title, index, kind: "label" };
-    scene.add(label);
+    label.userData = { ...stage, index: i, kind: "label" };
+    label.castShadow = false;
     labels.push(label);
     pickables.push(label);
   });
 
+  return { root, layers, markers, labels, pickables, houseLight };
+}
+
+async function init() {
+  if (!canvas) {
+    setHint("Canvas не найден");
+    return;
+  }
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: !isMobile(),
+    alpha: false,
+    powerPreference: "high-performance",
+  });
+  renderer.setClearColor(0x87a4b0, 1);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.enabled = !isMobile();
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87a4b0);
+  scene.fog = new THREE.Fog(0x9eb4bc, 22, 45);
+
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120);
+  camera.position.copy(camOf(STAGES[0]));
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+  const sun = new THREE.DirectionalLight(0xfff2d6, 1.55);
+  sun.position.set(10, 16, 8);
+  sun.castShadow = renderer.shadowMap.enabled;
+  if (sun.castShadow) {
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 45;
+    sun.shadow.camera.left = -14;
+    sun.shadow.camera.right = 14;
+    sun.shadow.camera.top = 14;
+    sun.shadow.camera.bottom = -14;
+  }
+  scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xd8e8f2, 0x4a6a45, 0.55));
+
+  const textures = {};
+  const [brick, wood, floor, roof, grass, plaster, ceramic] = await Promise.all([
+    loadTexture("images/textures/brick.svg"),
+    loadTexture("images/textures/wood.svg"),
+    loadTexture("images/textures/floor.svg"),
+    loadTexture("images/textures/roof.svg"),
+    loadTexture("images/textures/grass.svg"),
+    loadTexture("images/textures/plaster.svg"),
+    loadTexture("images/textures/tile-ceramic.svg"),
+  ]);
+  Object.assign(textures, { brick, wood, floor, roof, grass, plaster, ceramic });
+
+  const { root, layers, markers, labels, pickables, houseLight } = await buildPresentation(scene, textures);
+
+  let activeIndex = 0;
+  const camFrom = camera.position.clone();
+  const camTo = camera.position.clone();
+  const lookFrom = lookOf(STAGES[0]);
+  const lookTo = lookOf(STAGES[0]);
+  const lookNow = lookOf(STAGES[0]);
+  let camT = 1;
+  let orbitYaw = 0;
+  let orbitPitch = 0;
+  let userOrbit = false;
+  let idle = 0;
+
   if (stepsEl) {
-    stepsEl.innerHTML = STOPS.map(
+    stepsEl.innerHTML = STAGES.map(
       (s, i) =>
         `<li><button type="button" class="tour-step" data-index="${i}" aria-label="${s.title}"><img src="${s.icon}" alt="" width="18" height="18" /><span>${i + 1}</span></button></li>`
     ).join("");
   }
 
-  let activeIndex = 0;
-  const camFrom = new THREE.Vector3().copy(camera.position);
-  const camTo = new THREE.Vector3().copy(camera.position);
-  const lookFrom = new THREE.Vector3().copy(lookNow);
-  const lookTo = new THREE.Vector3().copy(lookNow);
-  let camT = 1;
-  let lookYaw = 0;
-  let lookPitch = 0;
-  let entering = true;
-  let enterPhase = 0; // 0 outside→door, 1 door→inside stop
-
-  function openStop(index = activeIndex) {
-    const stop = STOPS[index];
-    if (stop?.href) window.location.assign(stop.href);
+  function updateProgress() {
+    if (!progressEl) return;
+    const pct = ((activeIndex + 1) / STAGES.length) * 100;
+    progressEl.style.setProperty("--p", `${pct}%`);
+    progressEl.setAttribute("aria-valuenow", String(activeIndex + 1));
+    const label = progressEl.querySelector("[data-progress-label]");
+    if (label) label.textContent = `${activeIndex + 1} / ${STAGES.length}`;
   }
 
-  function goTo(index, instant = false) {
-    if (entering && !instant) return;
-    activeIndex = (index + STOPS.length) % STOPS.length;
-    const stop = STOPS[activeIndex];
-    lookYaw = 0;
-    lookPitch = 0;
+  const layerAnim = layers.map(() => ({ start: 0, rising: false }));
+
+  function applyLayerVisibility(index) {
+    const now = performance.now();
+    layers.forEach((layer, i) => {
+      const show = i <= index;
+      if (show) {
+        if (!layer.visible) {
+          layer.visible = true;
+          layerAnim[i].start = now;
+          layerAnim[i].rising = !reducedMotion;
+          layer.scale.set(1, reducedMotion ? 1 : 0.05, 1);
+          layer.position.y = reducedMotion ? 0 : -0.6;
+        }
+      } else {
+        layer.visible = false;
+        layer.scale.set(1, 1, 1);
+        layer.position.y = 0;
+        layerAnim[i].rising = false;
+      }
+    });
+    houseLight.intensity = index >= 2 ? 1.6 : 0;
+  }
+
+  function goTo(index, open = false) {
+    activeIndex = (index + STAGES.length) % STAGES.length;
+    const stage = STAGES[activeIndex];
+
+    userOrbit = false;
+    orbitYaw = 0;
+    orbitPitch = 0;
     camFrom.copy(camera.position);
     lookFrom.copy(lookNow);
-    camTo.copy(camOf(stop));
-    lookTo.copy(lookOf(stop));
-    camT = instant || reducedMotion ? 1 : 0;
+    camTo.copy(camOf(stage));
+    lookTo.copy(lookOf(stage));
+    camT = reducedMotion ? 1 : 0;
 
-    if (tourCopy) tourCopy.textContent = stop.copy;
-    setHint(`Точка ${activeIndex + 1}: ${stop.title}`);
+    if (tourCopy) tourCopy.textContent = stage.copy;
+    setHint(`Этап ${activeIndex + 1}: ${stage.title}`);
+    updateProgress();
 
     stepsEl?.querySelectorAll(".tour-step").forEach((btn, i) => {
       btn.classList.toggle("is-active", i === activeIndex);
     });
 
-    tiles.forEach((mesh) => {
-      const on = mesh.userData.index === activeIndex;
-      mesh.material.emissiveIntensity = on ? 0.95 : 0.3;
-      mesh.scale.setScalar(on ? 1.18 : 1);
+    markers.forEach((m, i) => {
+      const on = i === activeIndex;
+      m.material.emissiveIntensity = on ? 1.15 : 0.4;
+      m.scale.setScalar(on ? 1.35 : 1);
+      m.visible = true;
     });
+    labels.forEach((l, i) => {
+      l.visible = i === activeIndex;
+    });
+
+    applyLayerVisibility(activeIndex);
+
+    if (open) window.location.assign(stage.href);
   }
 
-  function startEntrance() {
-    entering = true;
-    enterPhase = 0;
-    if (tourCopy) tourCopy.textContent = "Входим в дом…";
-    setHint("Вход в дом");
-
-    if (reducedMotion) {
-      entering = false;
-      goTo(0, true);
-      setHint(defaultHint());
-      return;
-    }
-
-    camera.position.set(...ENTER.outside.cam);
-    lookNow.set(...ENTER.outside.look);
-    camFrom.copy(camera.position);
-    lookFrom.copy(lookNow);
-    camTo.set(...ENTER.doorway.cam);
-    lookTo.set(...ENTER.doorway.look);
-    camT = 0;
-  }
-
-  function onEntranceStepDone() {
-    if (enterPhase === 0) {
-      enterPhase = 1;
-      camFrom.copy(camera.position);
-      lookFrom.copy(lookNow);
-      camTo.copy(camOf(STOPS[0]));
-      lookTo.copy(lookOf(STOPS[0]));
-      camT = 0;
-      if (tourCopy) tourCopy.textContent = "Осматриваемся внутри…";
-      return;
-    }
-    entering = false;
-    goTo(0, true);
-    setHint(defaultHint());
-  }
-
-  startEntrance();
+  goTo(0);
 
   btnNext?.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (entering) return;
     goTo(activeIndex + 1);
   });
   btnPrev?.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (entering) return;
     goTo(activeIndex - 1);
   });
   btnOpen?.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (entering) return;
-    openStop(activeIndex);
+    goTo(activeIndex, true);
   });
   stepsEl?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-index]");
-    if (!btn || entering) return;
+    if (!btn) return;
     e.stopPropagation();
-    const index = Number(btn.dataset.index);
-    if (index === activeIndex) openStop(index);
-    else goTo(index);
+    const idx = Number(btn.dataset.index);
+    if (idx === activeIndex) goTo(idx, true);
+    else goTo(idx);
   });
 
-  const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  const drag = { active: false, moved: false, startX: 0, startY: 0, lastX: 0, lastY: 0, pointerId: null };
+  const raycaster = new THREE.Raycaster();
+  const drag = { active: false, moved: false, lx: 0, ly: 0, sx: 0, sy: 0 };
 
   function resize() {
     const w = canvas.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || window.innerHeight;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile() ? 1.75 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile() ? 1.6 : 2));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(h, 1);
-    camera.fov = isMobile() ? 62 : 58;
+    camera.fov = isMobile() ? 48 : 42;
     camera.updateProjectionMatrix();
   }
-
   resize();
-  window.addEventListener("resize", () => {
-    resize();
-    if (!drag.active && !entering) {
-      camTo.copy(camOf(STOPS[activeIndex]));
-      camFrom.copy(camera.position);
-      camT = 0;
-    }
-  });
+  window.addEventListener("resize", resize);
 
-  function setPointer(clientX, clientY) {
+  function setPointer(x, y) {
     const rect = canvas.getBoundingClientRect();
-    pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    pointer.x = ((x - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((y - rect.top) / rect.height) * 2 + 1;
   }
 
   function pick() {
@@ -603,125 +578,145 @@ async function init() {
     return raycaster.intersectObjects(pickables, false)[0]?.object || null;
   }
 
-  /** Осмотр изнутри: поворот взгляда вокруг позиции камеры */
-  function applyLook(dx, dy) {
-    lookYaw -= dx * 0.0045;
-    lookPitch -= dy * 0.003;
-    lookPitch = THREE.MathUtils.clamp(lookPitch, -0.55, 0.45);
-
-    const stop = STOPS[activeIndex];
-    const baseDir = lookOf(stop).clone().sub(camOf(stop)).normalize();
-    const spherical = new THREE.Spherical().setFromVector3(baseDir);
-    spherical.theta += lookYaw;
-    spherical.phi = THREE.MathUtils.clamp(spherical.phi + lookPitch, 0.35, Math.PI - 0.35);
-
-    const dir = new THREE.Vector3().setFromSpherical(spherical);
-    lookNow.copy(camera.position).add(dir.multiplyScalar(3.2));
-    lookTo.copy(lookNow);
-    lookFrom.copy(lookNow);
+  function orbitCamera() {
+    const stage = STAGES[activeIndex];
+    const target = lookOf(stage);
+    const base = camOf(stage);
+    const offset = base.clone().sub(target);
+    const spherical = new THREE.Spherical().setFromVector3(offset);
+    spherical.theta += orbitYaw;
+    spherical.phi = THREE.MathUtils.clamp(spherical.phi + orbitPitch, 0.35, 1.35);
+    camera.position.copy(target).add(new THREE.Vector3().setFromSpherical(spherical));
+    lookNow.copy(target);
     camT = 1;
   }
 
-  canvas.addEventListener("pointerdown", (event) => {
-    if (entering) return;
-    if (event.button != null && event.button !== 0) return;
+  canvas.addEventListener("pointerdown", (e) => {
     drag.active = true;
     drag.moved = false;
-    drag.startX = event.clientX;
-    drag.startY = event.clientY;
-    drag.lastX = event.clientX;
-    drag.lastY = event.clientY;
-    drag.pointerId = event.pointerId;
-    canvas.setPointerCapture?.(event.pointerId);
-    setPointer(event.clientX, event.clientY);
+    drag.sx = drag.lx = e.clientX;
+    drag.sy = drag.ly = e.clientY;
+    canvas.setPointerCapture?.(e.pointerId);
+    setPointer(e.clientX, e.clientY);
   });
 
-  canvas.addEventListener("pointermove", (event) => {
-    if (entering) return;
-    setPointer(event.clientX, event.clientY);
+  canvas.addEventListener("pointermove", (e) => {
+    setPointer(e.clientX, e.clientY);
     if (drag.active) {
-      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 10) drag.moved = true;
-      const dx = event.clientX - drag.lastX;
-      const dy = event.clientY - drag.lastY;
-      drag.lastX = event.clientX;
-      drag.lastY = event.clientY;
-      if (drag.moved) applyLook(dx, dy);
+      if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 10) drag.moved = true;
+      const dx = e.clientX - drag.lx;
+      const dy = e.clientY - drag.ly;
+      drag.lx = e.clientX;
+      drag.ly = e.clientY;
+      if (drag.moved) {
+        userOrbit = true;
+        orbitYaw -= dx * 0.005;
+        orbitPitch += dy * 0.0035;
+        orbitCamera();
+      }
       return;
     }
     const hit = pick();
     canvas.style.cursor = hit ? "pointer" : "grab";
-    setHint(hit ? `Открыть: ${hit.userData.title}` : defaultHint());
+    setHint(hit?.userData?.title ? `Открыть: ${hit.userData.title}` : defaultHint());
   });
 
-  function endDrag(event) {
+  canvas.addEventListener("pointerup", (e) => {
     if (!drag.active) return;
-    const wasDrag = drag.moved;
     drag.active = false;
-    try {
-      canvas.releasePointerCapture?.(drag.pointerId);
-    } catch {
-      /* ignore */
-    }
-    if (wasDrag) {
+    setPointer(e.clientX, e.clientY);
+    if (drag.moved) {
       setHint(defaultHint());
       return;
     }
-    setPointer(event.clientX, event.clientY);
     const hit = pick();
-    if (hit?.userData?.href) window.location.assign(hit.userData.href);
-    else setHint(defaultHint());
-  }
-
-  canvas.addEventListener("pointerup", endDrag);
-  canvas.addEventListener("pointercancel", endDrag);
-  canvas.addEventListener("click", (event) => {
-    if (entering || drag.moved) return;
-    setPointer(event.clientX, event.clientY);
-    const hit = pick();
-    if (hit?.userData?.href) window.location.assign(hit.userData.href);
+    if (hit && typeof hit.userData.index === "number") {
+      if (hit.userData.index === activeIndex) goTo(activeIndex, true);
+      else goTo(hit.userData.index);
+    }
   });
 
-  setHint("Входим в дом…");
+  canvas.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      const stage = STAGES[activeIndex];
+      const target = lookOf(stage);
+      const dir = camera.position.clone().sub(target);
+      const next = THREE.MathUtils.clamp(dir.length() + e.deltaY * 0.012, 5, 18);
+      dir.setLength(next);
+      camera.position.copy(target).add(dir);
+      camTo.copy(camera.position);
+      camFrom.copy(camera.position);
+      userOrbit = true;
+      camT = 1;
+    },
+    { passive: false }
+  );
 
-  let frame = 0;
+  setHint(defaultHint());
+  document.body.classList.add("hub-build");
+
+  if (!reducedMotion) {
+    root.rotation.y = -0.45;
+  }
+
   function animate() {
-    frame = requestAnimationFrame(animate);
-    if (camT < 1) {
-      const speed = entering ? 0.028 : 0.05;
-      camT = Math.min(1, camT + (reducedMotion ? 1 : speed));
+    requestAnimationFrame(animate);
+
+    if (!userOrbit && camT < 1) {
+      camT = Math.min(1, camT + (reducedMotion ? 1 : 0.035));
       const k = 1 - Math.pow(1 - camT, 3);
       camera.position.lerpVectors(camFrom, camTo, k);
       lookNow.lerpVectors(lookFrom, lookTo, k);
-      if (camT >= 1 && entering) onEntranceStepDone();
     }
+
     camera.lookAt(lookNow);
 
-    const t = performance.now() * 0.002;
-    tiles.forEach((mesh) => {
-      const base = STOPS[mesh.userData.index].position;
-      mesh.position.y = base.y + Math.sin(t + mesh.userData.index) * 0.04;
-      mesh.rotation.y += 0.01;
+    const now = performance.now();
+    layerAnim.forEach((anim, i) => {
+      if (!anim.rising) return;
+      const k = Math.min(1, (now - anim.start) / 850);
+      const e = 1 - (1 - k) ** 3;
+      layers[i].scale.y = 0.05 + 0.95 * e;
+      layers[i].position.y = -0.6 + 0.6 * e;
+      if (k >= 1) {
+        anim.rising = false;
+        layers[i].scale.set(1, 1, 1);
+        layers[i].position.y = 0;
+      }
     });
-    labels.forEach((label) => {
-      const on = label.userData.index === activeIndex && !entering;
-      label.visible = on;
+
+    const t = now * 0.002;
+    markers.forEach((m, i) => {
+      if (!m.visible) return;
+      const base = MARKER_POS[i];
+      m.position.y = base[1] + Math.sin(t + i * 1.3) * 0.07;
+    });
+    labels.forEach((label, i) => {
+      if (!label.visible) return;
       label.quaternion.copy(camera.quaternion);
-      const tile = tiles[label.userData.index];
-      const base = STOPS[label.userData.index].position;
-      label.position.set(base.x, tile.position.y + 0.85, base.z);
+      label.position.y = markers[i].position.y + 0.95;
     });
     pickables.forEach((obj) => {
-      if (obj.userData.kind === "hit") obj.position.copy(tiles[obj.userData.index].position);
+      if (obj.userData.kind === "hit") obj.position.copy(markers[obj.userData.index].position);
     });
+
+    if (!drag.active && !userOrbit && camT >= 1 && !reducedMotion) {
+      idle += 0.0025;
+      root.rotation.y = Math.sin(idle) * 0.08;
+    } else if (!reducedMotion && root.rotation.y < -0.01) {
+      root.rotation.y += 0.008;
+      if (root.rotation.y > 0) root.rotation.y = 0;
+    }
 
     renderer.render(scene, camera);
   }
 
   animate();
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) cancelAnimationFrame(frame);
-    else animate();
-  });
 }
 
-init().catch(() => setHint("3D-экскурсия недоступна — откройте «Список»"));
+init().catch((err) => {
+  console.error(err);
+  setHint("Не удалось запустить презентацию — откройте «Список»");
+});
